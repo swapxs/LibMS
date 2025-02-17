@@ -1,0 +1,334 @@
+/* the css file */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --fg0: #d4be98;
+    --fg1: #ddc7a1;
+    --white: #fefefe;
+    --bg-dim: #252423;
+    --bg0: #32302f;
+    --bg1: #3c3836;
+    --green: green;
+    --aqua: blue;
+    --red: red;
+    --bg-diff-red: #472322;
+    --font-family: 'Poppins', sans-serif;
+}
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+}
+
+body {
+    background: var(--fg0);
+    color: var(--bg-dim);
+    background-repeat: no-repeat;
+    background-size: cover;
+    line-height: 1.6;
+}
+
+
+/* Navbar Styles */
+.navbar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--bg-dim);
+    color: var(--white);
+}
+
+.title a {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--fg1);
+}
+
+
+.logoutbtn {
+    color: var(--white);
+    padding: 0;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    background: none;
+}
+
+.logoutbtn:hover {
+    color: var(--red);
+    background: none;
+}
+
+/* Container for Main Content */
+.container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Card Styles */
+.card {
+    background: var(--white);
+    border-radius: 5px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    background: var(--white);
+    border-radius: 8px 8px 0 0;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--bg-dim);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+/* Table Styles for Books Listing */
+.books-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.books-table th,
+.books-table td {
+    border: 1px solid var(--bg-dim);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.books-table th {
+    background-color: var(--green);
+    font-weight: 600;
+}
+
+.books-table tr:nth-child(even) {
+    background-color: #F3F1F7;
+}
+
+.books-table tr:hover {
+    background-color: #D7CCC8;
+}
+
+/* Button Styles */
+button {
+    background-color: var(--bg-dim);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--bg-dim);
+    color: var(--fg0);
+}
+
+/* Button group (for forms like UpdateBookForm) */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Success and Error Messages */
+.success {
+    color: var(--green);
+    margin-bottom: 1rem;
+}
+
+.error {
+    color: var(--red);
+    margin-bottom: 0.5rem;
+}
+
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.profile-card {
+    border: 1px solid var(--bg-dim);
+    border-radius: 4px;
+    padding: 1rem;
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--white);
+}
+
+.profile-card p {
+    margin: 0.5rem 0;
+}
+
+.book-card {
+    flex: 1 1 300px;
+    max-width: 300px;
+    border: 1px solid var(--bg-dim);
+    border-radius: 4px;
+    padding: 1rem;
+    background-color: var(--white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Book card header: larger font */
+.book-card-header h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+/* Divider */
+.book-card hr {
+    margin: 0.5rem 0;
+}
+
+/* Book card body */
+.book-card-body p {
+    margin: 0.4rem 0;
+}
+
+/* Form group spacing */
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.profile-card {
+    border: 1px solid var(--bg-dim);
+    border-radius: 4px;
+    padding: 1rem;
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--white);
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.profile-name {
+    font-size: 1.2rem;
+}
+
+.profile-actions {
+    margin-top: auto;
+}
+
+.profile-actions button {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-card .revoke {
+    background-color: var(--green);
+
+    &:hover {
+        background-color: var(--red);
+        color: var(--white);
+    }
+
+    &:hover:before {
+        content: "Revoke ";
+    }
+
+
+}
+
+
+.profile-card .assign {
+    background-color: var(--white);
+    color: var(--bg-dim);
+
+    &:hover {
+        background-color: var(--green);
+        color: var(--white);
+
+        span {
+            display: none;
+        }
+    }
+
+    &:hover:before {
+        content: "Assign Admin";
+    }
+}
+
+.mode-toggle {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.mode-toggle label {
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
