@@ -77,8 +77,9 @@ function Register() {
   };
 
   return (
+    <div className="container">
     <div className="card">
-      <h2>Register</h2>
+      <h1>Register</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -161,9 +162,10 @@ function Register() {
         
         <button type="submit">Register</button>
       </form>
-      <p>
+        <p className="bottom">
         Already have an account? <Link to="/login">Login here</Link>
       </p>
+    </div>
     </div>
   );
 }

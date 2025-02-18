@@ -97,13 +97,14 @@ body {
     box-shadow: 0 2px 40px rgba(0, 0, 0, 0.1);
 }
 
-.card-title {
-    background: var(--white);
-    border-radius: 8px 8px 0 0;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+.bottom {
+    margin-top: 10px;
 
+    a {
+        text-decoration: none;
+        color: var(--bg-dim);
+    }
+}
 .form-group {
     margin-bottom: 10px;
 }

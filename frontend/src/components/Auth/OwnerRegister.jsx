@@ -44,8 +44,9 @@ const RegisterOwner = () => {
   };
 
   return (
+    <div className="container">
     <div className="card">
-      <h2>Owner Registration</h2>
+      <h1>Owner Registration</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -112,11 +113,12 @@ const RegisterOwner = () => {
         </div>
         <button type="submit">Register as Owner</button>
         <div className="form-group">
-          <label>
+          <p className="bottom">
             Already have an account? <Link to="/login">Login here</Link>
-          </label>
+          </p>
         </div>
       </form>
+    </div>
     </div>
   );
 };

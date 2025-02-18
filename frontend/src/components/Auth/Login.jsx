@@ -37,8 +37,9 @@ function Login() {
   };
 
   return (
+        <div className="container">
     <div className="card">
-      <h2>Login</h2>
+      <h1>Login</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -65,10 +66,11 @@ function Login() {
         </div>
         <button type="submit">Login</button>
       </form>
-      <p>
+      <p className="bottom">
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
     </div>
+</div>
   );
 }
 

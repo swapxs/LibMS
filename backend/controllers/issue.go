@@ -99,19 +99,36 @@ func UpdateIssueRequestStatus(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		claims := c.MustGet("user").(jwt.MapClaims)
+		approverID := uint(claims["id"].(float64))
+
+		if input.RequestType == "Approve" {
+			// Reduce available copies by 1.
+			var book models.BookInventory
+			if err := db.Where("isbn = ?", reqEvent.BookID).First(&book).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+				return
+			}
+
+			if book.AvailableCopies < 1 {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "No available copies left to issue"})
+				return
+			}
+
+			book.AvailableCopies -= 1
+			if err := db.Save(&book).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update book availability"})
+				return
+			}
+		}
+
 		now := time.Now()
 		reqEvent.ApprovalDate = &now
 		reqEvent.RequestType = input.RequestType
-
-		// Set approver's id from token
-		claims := c.MustGet("user").(jwt.MapClaims)
-		approverID := uint(claims["id"].(float64))
 		reqEvent.ApproverID = &approverID
 
-		// Optionally update expected return date if provided.
 		if input.ExpectedReturnDate != nil {
-			// Here we expect a valid non-zero time.
-			reqEvent.ApprovalDate = input.ExpectedReturnDate // Alternatively, store separately if needed.
+			reqEvent.ApprovalDate = input.ExpectedReturnDate
 		}
 
 		if err := db.Save(&reqEvent).Error; err != nil {
@@ -119,7 +136,7 @@ func UpdateIssueRequestStatus(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Issue request status updated", "request": reqEvent})
+		c.JSON(http.StatusOK, gin.H{"message": "Issue request status updated and available copies adjusted", "request": reqEvent})
 	}
 }
 

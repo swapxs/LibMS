@@ -163,11 +163,11 @@ function AssignAdmin() {
                 <div className="profile-actions">
                   {u.Role !== 'LibraryAdmin' ? (
                     <button className="assign" onClick={() => handleAssignAdmin(u)}>
-                      <span>Promote</span>
+                      <span>Reader</span>
                     </button>
                   ) : (
                     <button className="revoke" onClick={() => handleRevokeAdmin(u)}>
-                      <span>Revoke</span>
+                      <span>Admin</span>
                     </button>
                   )}
                 </div>
