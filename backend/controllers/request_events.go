@@ -15,9 +15,7 @@ type RaiseRequestInput struct {
 	BookID string `json:"bookID" binding:"required"`
 }
 
-// RaiseRequest allows a reader to raise an issue request.
-// It checks if the requested book is available (i.e. available copies > 0)
-// and uses the reader's ID from the token.
+// RaiseRequest allows a reader to raise an issue request with a limit of 4 active requests.
 func RaiseRequest(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input RaiseRequestInput
@@ -26,7 +24,6 @@ func RaiseRequest(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Get user info from token claims.
 		claims, exists := c.Get("user")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -36,7 +33,21 @@ func RaiseRequest(db *gorm.DB) gin.HandlerFunc {
 		readerID := uint(tokenClaims["id"].(float64))
 		libraryID := uint(tokenClaims["library_id"].(float64))
 
-		// Check if the book exists in the library and is available.
+		// Count active requests (Pending or Approved) for the user.
+		var activeRequests int64
+		if err := db.Model(&models.RequestEvent{}).
+			Where("reader_id = ? AND request_type IN (?)", readerID, []string{"Issue", "Approve"}).
+			Count(&activeRequests).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count active requests"})
+			return
+		}
+
+		if activeRequests >= 4 {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Maximum of 4 active requests reached"})
+			return
+		}
+
+		// Check if the book is available.
 		var book models.BookInventory
 		if err := db.Where("isbn = ? AND library_id = ?", input.BookID, libraryID).First(&book).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Book not found in your library"})
@@ -58,6 +69,7 @@ func RaiseRequest(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusCreated, gin.H{"message": "Issue request raised", "request": reqEvent})
 	}
 }
