@@ -47,6 +47,7 @@ function Books() {
       const query = searchQuery.toLowerCase();
       setFilteredBooks(
         books.filter(book =>
+          ((book.isbn || book.ISBN ) && (book.isbn || book.ISBN).toLowerCase().includes(query)) ||
           ((book.title || book.Title) && (book.title || book.Title).toLowerCase().includes(query)) ||
           ((book.author || book.Author) && (book.author || book.Author).toLowerCase().includes(query)) ||
           ((book.publisher || book.Publisher) && (book.publisher || book.Publisher).toLowerCase().includes(query))
@@ -76,7 +77,7 @@ function Books() {
         <table className="books-table">
           <thead>
             <tr>
-              <th>Book ID</th>
+              {/* <th>Book ID</th> */}
               <th>ISBN</th>
               <th>Title</th>
               <th>Author</th>
@@ -89,7 +90,7 @@ function Books() {
           <tbody>
             {filteredBooks.map((book) => (
               <tr key={book.id || book.ID}>
-                <td>{book.id || book.ID}</td>
+                {/* <td>{book.id || book.ID}</td> */}
                 <td>{book.isbn || book.ISBN}</td>
                 <td>{book.title || book.Title}</td>
                 <td>{book.author || book.Author}</td>

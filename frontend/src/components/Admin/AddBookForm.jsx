@@ -38,7 +38,7 @@ function AddBookForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // If adding a new book, Title, Author, and Language are required.
+    // If adding a new book, require Title, Author, and Language.
     if (isNewBook && (!formData.title || !formData.author || !formData.language)) {
       setError("Title, Author, and Language are required for a new book.");
       return;
@@ -55,15 +55,22 @@ function AddBookForm() {
         increment_only: !isNewBook,
       };
       const result = await apiService.addBook(payload, user.token);
-      if (result.success || (result.message && result.message.toLowerCase().includes("added"))) {
-        setMessage(result.message || "Book added successfully");
+      // Check if the result message indicates a successful operation.
+      if (
+        result.message &&
+        (result.message.toLowerCase().includes("added") ||
+          result.message.toLowerCase().includes("incremented"))
+      ) {
+        setMessage(result.message);
         setError("");
       } else {
         setError(result.error || "Operation failed");
+        setMessage("");
       }
     } catch (err) {
       console.error("Error adding book:", err);
       setError("An error occurred while adding the book.");
+      setMessage("");
     }
   };
 

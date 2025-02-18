@@ -198,7 +198,7 @@ button:hover {
     border: 1px solid var(--bg-dim);
     border-radius: 4px;
     padding: 1rem;
-    width: 250px;
+    width: 300px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: var(--white);
 }
@@ -250,16 +250,6 @@ button:hover {
     justify-content: center;
 }
 
-.profile-card {
-    border: 1px solid var(--bg-dim);
-    border-radius: 4px;
-    padding: 1rem;
-    width: 250px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: var(--white);
-    display: flex;
-    flex-direction: column;
-}
 
 .profile-card-content {
     display: flex;

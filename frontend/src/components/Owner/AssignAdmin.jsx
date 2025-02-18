@@ -30,8 +30,8 @@ function AssignAdmin() {
       const nonOwners = allUsers.filter(u => u.Role !== 'Owner');
       // Optionally, sort non-owners with admin users first.
       nonOwners.sort((a, b) => {
-        if (a.Role === 'admin' && b.Role !== 'admin') return -1;
-        if (a.Role !== 'admin' && b.Role === 'admin') return 1;
+        if (a.Role === 'LibraryAdmin' && b.Role !== 'LibraryAdmin') return -1;
+        if (a.Role !== 'LibraryAdmin' && b.Role === 'LibraryAdmin') return 1;
         return 0;
       });
       setUsers(nonOwners);
@@ -82,7 +82,7 @@ function AssignAdmin() {
         setMessage(`Successfully promoted ${u.Name} to admin.`);
         // Update local state.
         const updated = users.map(item =>
-          item.Email === u.Email ? { ...item, Role: 'admin' } : item
+          item.Email === u.Email ? { ...item, Role: 'LibraryAdmin' } : item
         );
         setUsers(updated);
         setFilteredUsers(updated);
@@ -147,21 +147,20 @@ function AssignAdmin() {
             <div key={u.ID || u.Email} className="card profile-card">
               <div className="profile-card-content">
                 <div className="profile-info">
-                  <p className="profile-name">
-                    {u.Role === 'admin' ? (
+                  <h3 className="profile-name">
+                    {u.Role === 'LibraryAdmin' ? (
                       <i className="fa-solid fa-user-secret"></i>
                     ) : (
                       <i className="fa-solid fa-user"></i>
-                    )}
-                  </p>
-                  <p className="profile-name">{u.Name}</p>
-                  <p>{u.Email}</p>
-                  <p>{u.ContactNumber}</p>
-                  <p>{u.Role}</p>
-                  {u.LibraryID && <p>Library: {u.LibraryID}</p>}
+                    )} {u.Name}
+                  </h3>
+                  <p><i class="fa-solid fa-envelope"></i> {u.Email}</p>
+                  <p><i class="fa-solid fa-phone"></i> {u.ContactNumber}</p>
+                  {/* <p>{u.Role}</p> */}
+                  {/* {u.LibraryID && <p>Library: {u.LibraryID}</p>} */}
                 </div>
                 <div className="profile-actions">
-                  {u.Role !== 'admin' ? (
+                  {u.Role !== 'LibraryAdmin' ? (
                     <button className="assign" onClick={() => handleAssignAdmin(u)}>
                       <span>Promote</span>
                     </button>

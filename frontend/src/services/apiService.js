@@ -146,7 +146,34 @@ const apiService = {
       },
     });
     return response.json();
-  }
+  },
+
+issueBook: async (issueData, token) => {
+  const payload = {
+    isbn: issueData.isbn,
+    reader_id: issueData.reader_id,
+    issue_approver_id: issueData.issue_approver_id,
+    issue_status: issueData.issue_status,
+    issue_date: issueData.issue_date,
+    expected_return_date: issueData.expected_return_date,
+    library_id: issueData.library_id,
+  };
+  const response = await fetch(`${API_BASE_URL}/issueRegistry`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  return response.json();
+},
+    getUserIssueInfo: async (token) => {
+  const response = await fetch(`${API_BASE_URL}/auth/userIssueInfo`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.json();
+},
 };
 
 export default apiService;

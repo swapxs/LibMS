@@ -48,6 +48,7 @@ function NavBar() {
           <>
             <Link to="/user/all-books">Search &amp; Issue Books</Link>
             <Link to="/user/issue-request">Manual Issue Request</Link>
+            <Link to="/user/borrow-history">Borrow History</Link>
           </>
         )}
         {user && (
