@@ -11,26 +11,65 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreateIssueRequest creates an issue request record (reusing RaiseRequest functionality).
+// CreateIssueRequest reuses RaiseRequest functionality.
 func CreateIssueRequest(db *gorm.DB) gin.HandlerFunc {
 	return RaiseRequest(db)
 }
 
-// GetIssueRequests returns all issue requests for the library.
+// IssueRequestDetail represents the joined issue request data.
+type IssueRequestDetail struct {
+	ReqID              uint   `json:"ReqID"`
+	BookID             string `json:"BookID"`
+	BookName           string `json:"BookName"`
+	ReaderID           uint   `json:"ReaderID"`
+	ReaderName         string `json:"ReaderName"`
+	RequestDate        string `json:"RequestDate"`
+	ApprovalDate       string `json:"ApprovalDate"`
+	ApproverID         uint   `json:"ApproverID"`
+	IssueApproverEmail string `json:"IssueApproverEmail"`
+	RequestType        string `json:"RequestType"`
+	// Since request_events doesn't store return data, we'll default these:
+	ReturnApproverEmail string `json:"ReturnApproverEmail"`
+	ReturnStatus        string `json:"ReturnStatus"`
+}
+
+// GetIssueRequests returns issue requests with extra joined details.
 func GetIssueRequests(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Get library id from token claims.
 		claims := c.MustGet("user").(jwt.MapClaims)
 		libraryID := uint(claims["library_id"].(float64))
-		var requests []models.RequestEvent
-		if err := db.Table("request_events").
-			Select("request_events.*").
-			Joins("JOIN book_inventories ON request_events.book_id = book_inventories.isbn").
-			Where("book_inventories.library_id = ?", libraryID).
-			Find(&requests).Error; err != nil {
+
+		var details []IssueRequestDetail
+		// Join request_events (re), book_inventories (bi), and users (for reader and issue approver)
+		err := db.Raw(`
+			SELECT 
+				re.req_id as "ReqID",
+				re.book_id as "BookID",
+				bi.title as "BookName",
+				re.reader_id as "ReaderID",
+				ru.name as "ReaderName",
+				to_char(re.request_date, 'YYYY-MM-DD"T"HH24:MI:SSZ') as "RequestDate",
+				COALESCE(to_char(re.approval_date, 'YYYY-MM-DD"T"HH24:MI:SSZ'), '') as "ApprovalDate",
+				re.approver_id as "ApproverID",
+				ia.email as "IssueApproverEmail",
+				re.request_type as "RequestType",
+				'N/A' as "ReturnApproverEmail",
+				'N/A' as "ReturnStatus"
+			FROM request_events re
+			JOIN book_inventories bi ON re.book_id = bi.isbn
+			JOIN users ru ON re.reader_id = ru.id
+			LEFT JOIN users ia ON re.approver_id = ia.id
+			WHERE bi.library_id = ?
+			ORDER BY re.req_id ASC
+		`, libraryID).Scan(&details).Error
+
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"requests": requests})
+
+		c.JSON(http.StatusOK, gin.H{"requests": details})
 	}
 }
 
@@ -43,75 +82,65 @@ func UpdateIssueRequestStatus(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
 			return
 		}
+
 		var reqEvent models.RequestEvent
 		if err := db.First(&reqEvent, reqID).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Request not found"})
 			return
 		}
-		type StatusInput struct {
-			RequestType string `json:"request_type" binding:"required"`
+
+		var input struct {
+			RequestType         string     `json:"request_type" binding:"required"`
+			ExpectedReturnDate  *time.Time `json:"expected_return_date"`
 		}
-		var input StatusInput
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
 		now := time.Now()
 		reqEvent.ApprovalDate = &now
 		reqEvent.RequestType = input.RequestType
+
+		// Set approver's id from token
 		claims := c.MustGet("user").(jwt.MapClaims)
 		approverID := uint(claims["id"].(float64))
 		reqEvent.ApproverID = &approverID
+
+		// Optionally update expected return date if provided.
+		if input.ExpectedReturnDate != nil {
+			// Here we expect a valid non-zero time.
+			reqEvent.ApprovalDate = input.ExpectedReturnDate // Alternatively, store separately if needed.
+		}
+
 		if err := db.Save(&reqEvent).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusOK, gin.H{"message": "Issue request status updated", "request": reqEvent})
 	}
 }
 
-// IssueBook approves an issue request and creates an issue registry entry.
+// IssueBook creates an issuance record in the issue_registries table.
 func IssueBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims := c.MustGet("user").(jwt.MapClaims)
-		role := claims["role"].(string)
-		if role != "LibraryAdmin" && role != "Owner" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		var payload models.IssueRegistry
+		if err := c.ShouldBindJSON(&payload); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		idParam := c.Param("id")
-		reqID, err := strconv.Atoi(idParam)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
+		// Set issue date to now.
+		payload.IssueDate = time.Now()
+		// Check that expected_return_date is not zero.
+		if payload.ExpectedReturnDate.IsZero() {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Expected return date is required"})
 			return
 		}
-		var reqEvent models.RequestEvent
-		if err := db.First(&reqEvent, reqID).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Request not found"})
-			return
-		}
-		now := time.Now()
-		approverID := uint(claims["id"].(float64))
-		reqEvent.ApprovalDate = &now
-		reqEvent.ApproverID = &approverID
-		reqEvent.RequestType = "Approved"
-		if err := db.Save(&reqEvent).Error; err != nil {
+		if err := db.Create(&payload).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		issue := models.IssueRegistry{
-			ISBN:               reqEvent.BookID,
-			ReaderID:           reqEvent.ReaderID,
-			IssueApproverID:    approverID,
-			IssueStatus:        "Issued",
-			IssueDate:          now,
-			ExpectedReturnDate: now.AddDate(0, 0, 14),
-			LibraryID:          uint(claims["library_id"].(float64)),
-		}
-		if err := db.Create(&issue).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"message": "Book issued", "issue": issue})
+		c.JSON(http.StatusOK, gin.H{"message": "Book issued", "issue": payload})
 	}
 }

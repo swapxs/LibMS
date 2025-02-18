@@ -8,6 +8,6 @@ type User struct {
 	Email         string `gorm:"unique;not null"`
 	Password      string `gorm:"not null"` // stored as bcrypt hash
 	ContactNumber string
-	Role          string `gorm:"not null"` // "Owner", "LibraryAdmin", or "Reader"
-	LibraryID     uint   // foreign key to Library
+	Role          string `gorm:"not null"` // "Owner", "LibraryAdmin", "Reader"
+	LibraryID     uint   `gorm:"not null"`
 }

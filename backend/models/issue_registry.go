@@ -1,16 +1,19 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type IssueRegistry struct {
-	IssueID            uint       `gorm:"primaryKey;autoIncrement"`
-	ISBN               string     `gorm:"not null"`
-	ReaderID           uint       `gorm:"not null"`
-	IssueApproverID    uint       `gorm:"not null"`
-	IssueStatus        string     `gorm:"not null"` // e.g., "Issued", "Returned"
-	IssueDate          time.Time  `gorm:"autoCreateTime"`
-	ExpectedReturnDate time.Time  `gorm:"not null"`
-	ReturnDate         *time.Time
-	ReturnApproverID   *uint
-	LibraryID          uint `gorm:"not null"`
+	gorm.Model
+	ISBN               string    `gorm:"not null" json:"isbn"`
+	ReaderID           uint      `gorm:"not null" json:"reader_id"`
+	IssueApproverID    uint      `gorm:"not null" json:"issue_approver_id"`
+	IssueStatus        string    `gorm:"not null" json:"issue_status"`
+	IssueDate          time.Time `gorm:"autoCreateTime" json:"issue_date"`
+	ExpectedReturnDate time.Time `gorm:"not null" json:"expected_return_date"`
+	ReturnDate         *time.Time `json:"return_date"`
+	ReturnApproverID   *uint     `json:"return_approver_id"`
+	LibraryID          uint      `gorm:"not null" json:"library_id"`
 }

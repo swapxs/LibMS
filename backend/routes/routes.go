@@ -10,13 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// SetupRouter sets up all API routes with a complete CORS configuration.
+// SetupRouter configures all routes and applies CORS.
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
-	// Apply custom CORS configuration.
+	// Custom CORS configuration.
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Change this to your frontend domain in production.
+		AllowOrigins:     []string{"http://localhost:3000"}, // Change for production.
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -24,7 +24,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// Define all API endpoints under /api.
 	api := r.Group("/api")
 	{
 		// Public endpoints.
@@ -40,7 +39,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		{
 			protected.GET("/users", controllers.GetUsers(db))
 			protected.GET("/auth/userIssueInfo", controllers.GetUserIssueInfo(db))
-
 			// Book endpoints.
 			books := protected.Group("/books")
 			{
@@ -49,17 +47,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 				books.POST("/remove", controllers.RemoveBook(db))
 				books.PUT("/:isbn", controllers.UpdateBook(db))
 			}
-
 			// Owner endpoints.
 			owner := protected.Group("/owner")
 			{
 				owner.POST("/assign-admin", controllers.AssignAdmin(db))
 				owner.POST("/revoke-admin", controllers.RevokeAdmin(db))
 			}
-
 			// Request events.
 			protected.POST("/requestEvents", controllers.RaiseRequest(db))
-
 			// Issue Request endpoints.
 			issue := protected.Group("/issueRequests")
 			{
@@ -67,8 +62,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 				issue.GET("", controllers.GetIssueRequests(db))
 				issue.PUT("/:id", controllers.UpdateIssueRequestStatus(db))
 			}
-
-			// Issue Registry endpoints.
+			// Issue Registry endpoint.
 			protected.POST("/issueRegistry", controllers.IssueBook(db))
 		}
 	}

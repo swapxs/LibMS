@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetUsers returns all users in the same library.
+// GetUsers returns all users for the library.
 func GetUsers(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
@@ -19,11 +19,11 @@ func GetUsers(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"users": users})
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": users})
 	}
 }
 
-// GetUserIssueInfo returns the issue registry records for the logged-in user.
+// GetUserIssueInfo returns issue registry records for the logged-in user.
 func GetUserIssueInfo(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
@@ -33,6 +33,6 @@ func GetUserIssueInfo(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"issues": issues})
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": issues})
 	}
 }

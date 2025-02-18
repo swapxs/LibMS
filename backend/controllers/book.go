@@ -9,20 +9,21 @@ import (
 	"gorm.io/gorm"
 )
 
-// AddBookInput represents the payload for adding a new book.
+// AddBookInput represents the payload for adding a book.
 type AddBookInput struct {
 	ISBN          string `json:"isbn" binding:"required"`
-	Title         string `json:"title" binding:"required"`
-	Author        string `json:"author" binding:"required"`   // Changed field name to "Author"
+	Title         string `json:"title"`          // Required only when creating a new book
+	Author        string `json:"author"`         // Required only when creating a new book
 	Publisher     string `json:"publisher"`
-	Language      string `json:"language"`                      // New field for language
+	Language      string `json:"language"`       // Required only when creating a new book
 	Version       string `json:"version"`
 	Copies        int    `json:"copies" binding:"required,gt=0"`
 	IncrementOnly bool   `json:"increment_only"`
 }
 
 // AddOrIncrementBook adds a new book or increments copies if the book already exists.
-// If an existing record has zero copies, it deletes that record before creating a new one.
+// If the book exists, it ignores Title, Author, and Language.
+// If no record is found and IncrementOnly is true, it returns an error.
 func AddOrIncrementBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input AddBookInput
@@ -31,7 +32,6 @@ func AddOrIncrementBook(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Get library ID from JWT claims.
 		claims := c.MustGet("user").(jwt.MapClaims)
 		libraryID := uint(claims["library_id"].(float64))
 
@@ -39,36 +39,35 @@ func AddOrIncrementBook(db *gorm.DB) gin.HandlerFunc {
 		err := db.Where("isbn = ? AND library_id = ?", input.ISBN, libraryID).First(&book).Error
 
 		if err == nil {
-			// Book record exists.
-			if book.TotalCopies == 0 {
-				// Delete record if total copies is zero.
-				if err := db.Delete(&book).Error; err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-					return
-				}
-			} else {
-				// Increment the existing record's copies.
-				book.TotalCopies += input.Copies
-				book.AvailableCopies += input.Copies
-				if err := db.Save(&book).Error; err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-					return
-				}
-				c.JSON(http.StatusOK, gin.H{"message": "Book copies incremented", "book": book})
+			// Book record exists: Increment copies.
+			book.TotalCopies += input.Copies
+			book.AvailableCopies += input.Copies
+			if err := db.Save(&book).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
+			c.JSON(http.StatusOK, gin.H{"message": "Book copies incremented", "book": book})
+			return
 		} else if err != gorm.ErrRecordNotFound {
+			// Some other error occurred.
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		// At this point, either the book doesn't exist or was deleted.
-		// Ensure Title, Author, and other required fields are provided.
-		if input.Title == "" || input.Author == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Title and Author are required for a new book"})
+		// Record not found.
+		if input.IncrementOnly {
+			// Cannot increment copies if record does not exist.
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Book not found, cannot increment copies. Please add new book details."})
 			return
 		}
 
+		// For a new book, require Title, Author, and Language.
+		if input.Title == "" || input.Author == "" || input.Language == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Title, Author, and Language are required for a new book"})
+			return
+		}
+
+		// Create a new book record.
 		newBook := models.BookInventory{
 			ISBN:            input.ISBN,
 			LibraryID:       libraryID,
@@ -102,60 +101,7 @@ func GetBooks(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// UpdateBookInput is the payload for updating a book.
-type UpdateBookInput struct {
-	Title       string `json:"title"`
-	Author     string `json:"authors"`
-	Publisher   string `json:"publisher"`
-	Version     string `json:"version"`
-	TotalCopies *int   `json:"total_copies"`
-}
-
-// UpdateBook updates details of a book.
-func UpdateBook(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		isbn := c.Param("isbn")
-		claims := c.MustGet("user").(jwt.MapClaims)
-		libraryID := uint(claims["library_id"].(float64))
-		var book models.BookInventory
-		if err := db.Where("isbn = ? AND library_id = ?", isbn, libraryID).First(&book).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
-			return
-		}
-		var input UpdateBookInput
-		if err := c.ShouldBindJSON(&input); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if input.Title != "" {
-			book.Title = input.Title
-		}
-		if input.Author != "" {
-			book.Author = input.Author
-		}
-		if input.Publisher != "" {
-			book.Publisher = input.Publisher
-		}
-		if input.Version != "" {
-			book.Version = input.Version
-		}
-		if input.TotalCopies != nil {
-			diff := *input.TotalCopies - book.TotalCopies
-			book.TotalCopies = *input.TotalCopies
-			book.AvailableCopies += diff
-			if book.AvailableCopies < 0 {
-				book.AvailableCopies = 0
-			}
-		}
-		if err := db.Save(&book).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"message": "Book updated", "book": book})
-	}
-}
-
-// RemoveBook removes copies of a book (or deletes the record if copies become 0).
+// RemoveBook removes copies of a book. If removal makes copies 0, delete the record.
 func RemoveBook(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
@@ -173,12 +119,14 @@ func RemoveBook(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 			return
 		}
+		// Check if removal is valid (can't remove more than available non-issued copies)
 		issued := book.TotalCopies - book.AvailableCopies
 		if payload.Copies > (book.TotalCopies - issued) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot remove issued copies"})
 			return
 		}
 		if book.TotalCopies-payload.Copies == 0 {
+			// Delete record if resulting copies is zero.
 			if err := db.Delete(&book).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
@@ -197,5 +145,30 @@ func RemoveBook(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"message": "Book copies removed", "book": book})
+	}
+}
+
+// UpdateBook updates book details.
+func UpdateBook(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		isbn := c.Param("isbn")
+		claims := c.MustGet("user").(jwt.MapClaims)
+		libraryID := uint(claims["library_id"].(float64))
+		var book models.BookInventory
+		if err := db.Where("isbn = ? AND library_id = ?", isbn, libraryID).First(&book).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+			return
+		}
+		var input map[string]interface{}
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		// Update only provided fields.
+		if err := db.Model(&book).Updates(input).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Book updated", "book": book})
 	}
 }
