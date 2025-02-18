@@ -5,6 +5,7 @@ const IssueRequestForm = () => {
   const { user } = useAuth();
   const [isbn, setIsbn] = useState("");
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" or "error"
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,16 +22,28 @@ const IssueRequestForm = () => {
         }
       );
       const data = await response.json();
-      setMessage(data.message || data.error);
+      if (data.message) {
+        // Assume if there's a message, it's success; otherwise, error.
+        setMessage(data.message);
+        setMessageType("success");
+      } else {
+        setMessage(data.error || "Issue request failed.");
+        setMessageType("error");
+      }
     } catch (err) {
       setMessage("Error submitting issue request: " + err.message);
+      setMessageType("error");
     }
+  };
+
+  const messageStyle = {
+    color: messageType === "success" ? "green" : "red"
   };
 
   return (
     <div className="container">
       <h3>Issue Request</h3>
-      {message && <p style={{ color: "red" }}>{message}</p>}
+      {message && <p style={messageStyle}>{message}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

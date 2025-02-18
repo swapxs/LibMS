@@ -1,0 +1,463 @@
+diff --git a/frontend/node_modules/.cache/default-development/5.pack b/frontend/node_modules/.cache/default-development/5.pack
+index 550a95c8..5d388217 100644
+Binary files a/frontend/node_modules/.cache/default-development/5.pack and b/frontend/node_modules/.cache/default-development/5.pack differ
+diff --git a/frontend/node_modules/.cache/default-development/6.pack b/frontend/node_modules/.cache/default-development/6.pack
+index 900e3821..98014bb7 100644
+Binary files a/frontend/node_modules/.cache/default-development/6.pack and b/frontend/node_modules/.cache/default-development/6.pack differ
+diff --git a/frontend/node_modules/.cache/default-development/index.pack b/frontend/node_modules/.cache/default-development/index.pack
+index b73ffd2a..a3b51526 100644
+Binary files a/frontend/node_modules/.cache/default-development/index.pack and b/frontend/node_modules/.cache/default-development/index.pack differ
+diff --git a/frontend/node_modules/.cache/default-development/index.pack.old b/frontend/node_modules/.cache/default-development/index.pack.old
+index 82434f71..b73ffd2a 100644
+Binary files a/frontend/node_modules/.cache/default-development/index.pack.old and b/frontend/node_modules/.cache/default-development/index.pack.old differ
+diff --git a/frontend/src/components/Admin/IssueRequestList.jsx b/frontend/src/components/Admin/IssueRequestList.jsx
+index c5c4c1a9..c5710a64 100644
+--- a/frontend/src/components/Admin/IssueRequestList.jsx
++++ b/frontend/src/components/Admin/IssueRequestList.jsx
+@@ -1,130 +1,150 @@
+-// frontend/src/components/Admin/IssueRequestList.jsx
+ import React, { useState, useEffect } from 'react';
+ import apiService from '../../services/apiService';
++import { useAuth } from '../../context/AuthContext';
+ 
+ function IssueRequestList() {
+-  const [issues, setIssues] = useState([]);
+-  const [books, setBooks] = useState([]);
++  const { user } = useAuth();
++  const [requests, setRequests] = useState([]);
+   const [loading, setLoading] = useState(true);
++  const [error, setError] = useState("");
+ 
+-  // Fetch both issue requests and books when the component mounts.
+-  useEffect(() => {
+-    async function fetchData() {
+-      try {
+-        const issuesResponse = await apiService.getIssueRequests();
+-        const booksResponse = await apiService.getBooks();
+-        console.log("Issues response:", issuesResponse);
+-        console.log("Books response:", booksResponse);
+-        if (issuesResponse.success && Array.isArray(issuesResponse.data)) {
+-          setIssues(issuesResponse.data);
+-        } else {
+-          setIssues([]);
+-        }
+-        if (booksResponse.success && Array.isArray(booksResponse.data)) {
+-          setBooks(booksResponse.data);
+-        } else {
+-          setBooks([]);
+-        }
+-      } catch (error) {
+-        console.error("Error fetching data:", error);
+-      } finally {
+-        setLoading(false);
++  // Fetch issue requests from backend.
++  const fetchRequests = async () => {
++    try {
++      const response = await apiService.getIssueRequests(user.token);
++      console.log("Issue requests response:", response);
++      let fetchedRequests = [];
++      if (response.requests && Array.isArray(response.requests)) {
++        fetchedRequests = response.requests;
++      } else if (response.success && Array.isArray(response.data)) {
++        fetchedRequests = response.data;
++      } else if (Array.isArray(response)) {
++        fetchedRequests = response;
++      } else {
++        setError("Invalid response format from getIssueRequests");
++        fetchedRequests = [];
+       }
++      setRequests(fetchedRequests);
++      setError("");
++    } catch (err) {
++      console.error("Error fetching issue requests:", err);
++      setError("Error fetching issue requests");
++      setRequests([]);
++    } finally {
++      setLoading(false);
+     }
+-    fetchData();
+-  }, []);
+-
+-  // Merge each issue request with its corresponding book details.
+-  const mergedData = issues.map(req => {
+-    const reqBookID = String(req.bookID);
+-    const matchedBook = books.find(
+-      book => String(book.id) === reqBookID || String(book.ID) === reqBookID
+-    );
+-    return { ...req, bookDetails: matchedBook || {} };
+-  });
++  };
+ 
+-  // Filter duplicates based on a unique key: combination of bookID and userID.
+-  const uniqueData = [];
+-  const seenKeys = new Set();
+-  mergedData.forEach((req) => {
+-    const key = String(req.bookID) + "-" + String(req.userID || req.UserID);
+-    if (!seenKeys.has(key)) {
+-      seenKeys.add(key);
+-      uniqueData.push(req);
++  useEffect(() => {
++    if (user && user.token) {
++      fetchRequests();
+     }
+-  });
++  }, [user]);
+ 
+-  // Update the status of an issue request when the dropdown value changes.
++  // Handler for changing the status via the dropdown.
+   const handleStatusChange = async (reqId, newStatus) => {
+-    const response = await apiService.updateIssueRequest(reqId, { status: newStatus });
+-    if (response.success) {
+-      setIssues(prevIssues =>
+-        prevIssues.map(req => {
+-          const currentId = String(req.id || req.ID);
+-          if (currentId === String(reqId)) {
+-            return { ...req, status: newStatus };
+-          }
+-          return req;
+-        })
+-      );
++    let updatePayload = { request_type: newStatus };
++    if (newStatus === "Approve") {
++      // Calculate expected return date 7 days from now.
++      const now = new Date();
++      const expectedReturnDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
++      updatePayload.expectedReturnDate = expectedReturnDate.toISOString();
+     } else {
+-      alert("Failed to update status");
++      // For non-approved statuses, clear expectedReturnDate.
++      updatePayload.expectedReturnDate = null;
++    }
++    try {
++      const response = await apiService.updateIssueRequest(reqId, updatePayload, user.token);
++      console.log("Update issue request response:", response);
++      // Check if response.message indicates success.
++      if (
++        response.message &&
++        response.message.toLowerCase().includes("updated")
++      ) {
++        // Update local state: update the request's status and expectedReturnDate.
++        setRequests(prev =>
++          prev.map(r =>
++            r.ReqID === reqId
++              ? { ...r, RequestType: newStatus, expectedReturnDate: updatePayload.expectedReturnDate }
++              : r
++          )
++        );
++        setError("");
++      } else {
++        setError(response.error || "Failed to update issue request status");
++      }
++    } catch (err) {
++      console.error("Error updating issue request status:", err);
++      setError("An error occurred while updating issue request status");
+     }
+   };
+ 
++  // Calculate expected return date from ApprovalDate (7 days after approval).
++  const calculateExpectedReturnDate = (approvalDate) => {
++    if (!approvalDate) return "Invalid Date";
++    const date = new Date(approvalDate);
++    date.setDate(date.getDate() + 7);
++    return date.toLocaleString();
++  };
++
+   return (
+     <div className="card">
+       <h2>Issue Requests</h2>
+       {loading ? (
+         <p>Loading issue requests...</p>
+-      ) : uniqueData.length === 0 ? (
++      ) : error ? (
++        <p style={{ color: "red" }}>{error}</p>
++      ) : requests.length === 0 ? (
+         <p>No issue requests found.</p>
+       ) : (
+         <table className="books-table">
+           <thead>
+             <tr>
++              <th>Issue ID</th>
+               <th>Book ID</th>
+-              <th>User ID</th>
+-              <th>Book Title</th>
+-              <th>Language</th>
+-              <th>Copies Left</th>
++              <th>Reader ID</th>
++              <th>Request Date</th>
+               <th>Status</th>
++              <th>Expected Return Date</th>
+             </tr>
+           </thead>
+           <tbody>
+-            {uniqueData.map(req => {
+-              const reqId = req.id || req.ID;
+-              const status = req.status || req.Status || 'pending';
++            {requests.map((req) => {
++              const reqId = req.ReqID;
++              const bookId = req.BookID;
++              const readerId = req.ReaderID;
++              const requestDate = req.RequestDate;
++              const status = req.RequestType || "Pending";
+               return (
+-                <tr key={reqId + "-" + req.bookID + "-" + req.userID}>
+-                  <td>{req.bookID}</td>
+-                  <td>{req.userID || req.UserID}</td>
+-                  <td>{req.bookDetails && req.bookDetails.title ? req.bookDetails.title : "N/A"}</td>
+-                  <td>{req.bookDetails && req.bookDetails.language ? req.bookDetails.language : "N/A"}</td>
+-                  <td>
+-                    {typeof req.bookDetails.availableCopies !== 'undefined'
+-                      ? req.bookDetails.availableCopies
+-                      : "N/A"}
+-                  </td>
++                <tr key={reqId}>
++                  <td>{reqId}</td>
++                  <td>{bookId}</td>
++                  <td>{readerId}</td>
++                  <td>{new Date(requestDate).toLocaleString()}</td>
+                   <td>
+                     <select
+                       value={status}
+                       onChange={(e) => handleStatusChange(reqId, e.target.value)}
+                     >
+-                      <option value="pending">Pending</option>
+-                      <option value="approved">Approved</option>
+-                      <option value="rejected">Rejected</option>
++                      <option value="Pending">Pending</option>
++                      <option value="Reject">Reject</option>
++                      <option value="Approve">Approve</option>
+                     </select>
+                   </td>
++                  <td>
++                    {status === "Approve" && req.ApprovalDate
++                      ? calculateExpectedReturnDate(req.ApprovalDate)
++                      : "Invalid Date"}
++                  </td>
+                 </tr>
+               );
+             })}
+           </tbody>
+         </table>
+       )}
++      <button onClick={fetchRequests}>Refresh</button>
+     </div>
+   );
+ }
+ 
+ export default IssueRequestList;
+-
+diff --git a/frontend/src/components/Auth/Login.jsx b/frontend/src/components/Auth/Login.jsx
+index b52c2c10..341ca0cb 100644
+--- a/frontend/src/components/Auth/Login.jsx
++++ b/frontend/src/components/Auth/Login.jsx
+@@ -36,7 +36,7 @@ function Login() {
+   };
+ 
+   return (
+-    <div className="container">
++    <div className="card">
+       <h2>Login</h2>
+       {error && <p style={{ color: "red" }}>{error}</p>}
+       <form onSubmit={handleSubmit}>
+diff --git a/frontend/src/components/Auth/OwnerRegister.jsx b/frontend/src/components/Auth/OwnerRegister.jsx
+index b6ac2fe9..53873aca 100644
+--- a/frontend/src/components/Auth/OwnerRegister.jsx
++++ b/frontend/src/components/Auth/OwnerRegister.jsx
+@@ -7,6 +7,7 @@ const RegisterOwner = () => {
+     name: "",
+     email: "",
+     password: "",
++    confirmPassword: "", // Updated key to match the input field's name
+     contact_number: "",
+     library_name: "",
+   });
+@@ -17,6 +18,10 @@ const RegisterOwner = () => {
+ 
+   const handleSubmit = async (e) => {
+     e.preventDefault();
++    if (formData.password !== formData.confirmPassword) {
++      setError("Passwords do not match");
++      return;
++    }
+     try {
+       const response = await fetch(
+         `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/owner/registration`,
+@@ -38,55 +43,79 @@ const RegisterOwner = () => {
+   };
+ 
+   return (
+-    <div className="container">
++    <div className="card">
+       <h2>Owner Registration</h2>
+       {error && <p style={{ color: "red" }}>{error}</p>}
+       <form onSubmit={handleSubmit}>
+-        <input
+-          type="text"
+-          name="name"
+-          placeholder="Full Name"
+-          value={formData.name}
+-          onChange={handleChange}
+-          required
+-        />
+-        <input
+-          type="email"
+-          name="email"
+-          placeholder="Email"
+-          value={formData.email}
+-          onChange={handleChange}
+-          required
+-        />
+-        <input
+-          type="password"
+-          name="password"
+-          placeholder="Password"
+-          value={formData.password}
+-          onChange={handleChange}
+-          required
+-        />
+-        <input
+-          type="text"
+-          name="contact_number"
+-          placeholder="Contact Number"
+-          value={formData.contact_number}
+-          onChange={handleChange}
+-          required
+-        />
+-        <input
+-          type="text"
+-          name="library_name"
+-          placeholder="Library Name"
+-          value={formData.library_name}
+-          onChange={handleChange}
+-          required
+-        />
++        <div className="form-group">
++          <label htmlFor="name">Name:</label>
++          <input
++            type="text"
++            name="name"
++            value={formData.name}
++            onChange={handleChange}
++            required
++          />
++        </div>
++        <div className="form-group">
++          <label htmlFor="email">Email:</label>
++          <input
++            type="email"
++            name="email"
++            value={formData.email}
++            onChange={handleChange}
++            required
++          />
++        </div>
++        <div className="form-group">
++          <label htmlFor="email">Password:</label>
++          <input
++            type="password"
++            name="password"
++            placeholder=""
++            value={formData.password}
++            onChange={handleChange}
++            required
++          />
++        </div>
++        <div className="form-group">
++          <label htmlFor="confirmPassword">Confirm Password:</label>
++          <input
++            type="password"
++            id="confirmPassword"
++            name="confirmPassword"
++            value={formData.confirmPassword}
++            onChange={handleChange}
++            required
++          />
++        </div>
++        <div className="form-group">
++          <label htmlFor="contact_number">Contact Number:</label>
++          <input
++            type="text"
++            name="contact_number"
++            value={formData.contact_number}
++            onChange={handleChange}
++            required
++          />
++        </div>
++        <div className="form-group">
++          <label htmlFor="library_name">Library Name:</label>
++          <input
++            type="text"
++            name="library_name"
++            value={formData.library_name}
++            onChange={handleChange}
++            required
++          />
++        </div>
+         <button type="submit">Register as Owner</button>
++        <div className="form-group">
++          <label>
++            Already have an account? <Link to="/login">Login here</Link>
++          </label>
++        </div>
+       </form>
+-      <p>
+-        Already have an account? <Link to="/login">Login here</Link>
+-      </p>
+     </div>
+   );
+ };
+diff --git a/frontend/src/components/Auth/Register.jsx b/frontend/src/components/Auth/Register.jsx
+index 12eb6f12..bce7d41b 100644
+--- a/frontend/src/components/Auth/Register.jsx
++++ b/frontend/src/components/Auth/Register.jsx
+@@ -76,7 +76,7 @@ function Register() {
+   };
+ 
+   return (
+-    <div className="container">
++    <div className="card">
+       <h2>Register</h2>
+       {error && <p style={{ color: "red" }}>{error}</p>}
+       <form onSubmit={handleSubmit}>
+diff --git a/frontend/src/components/User/IssueRequestForm.jsx b/frontend/src/components/User/IssueRequestForm.jsx
+index 44e7dd9b..6ded5edd 100644
+--- a/frontend/src/components/User/IssueRequestForm.jsx
++++ b/frontend/src/components/User/IssueRequestForm.jsx
+@@ -5,6 +5,7 @@ const IssueRequestForm = () => {
+   const { user } = useAuth();
+   const [isbn, setIsbn] = useState("");
+   const [message, setMessage] = useState("");
++  const [messageType, setMessageType] = useState(""); // "success" or "error"
+ 
+   const handleSubmit = async (e) => {
+     e.preventDefault();
+@@ -21,16 +22,28 @@ const IssueRequestForm = () => {
+         }
+       );
+       const data = await response.json();
+-      setMessage(data.message || data.error);
++      if (data.message) {
++        // Assume if there's a message, it's success; otherwise, error.
++        setMessage(data.message);
++        setMessageType("success");
++      } else {
++        setMessage(data.error || "Issue request failed.");
++        setMessageType("error");
++      }
+     } catch (err) {
+       setMessage("Error submitting issue request: " + err.message);
++      setMessageType("error");
+     }
+   };
+ 
++  const messageStyle = {
++    color: messageType === "success" ? "green" : "red"
++  };
++
+   return (
+     <div className="container">
+       <h3>Issue Request</h3>
+-      {message && <p style={{ color: "red" }}>{message}</p>}
++      {message && <p style={messageStyle}>{message}</p>}
+       <form onSubmit={handleSubmit}>
+         <input
+           type="text"
