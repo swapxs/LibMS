@@ -1,3 +1,4 @@
+// frontend/src/components/NavBar.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -48,7 +49,6 @@ function NavBar() {
           <>
             <Link to="/user/all-books">Search &amp; Issue Books</Link>
             <Link to="/user/issue-request">Manual Issue Request</Link>
-            <Link to="/user/borrow-history">Borrow History</Link>
           </>
         )}
         {user && (

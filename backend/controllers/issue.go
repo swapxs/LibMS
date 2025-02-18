@@ -1,3 +1,4 @@
+// /backend/controllers/issue.go
 package controllers
 
 import (
@@ -90,8 +91,8 @@ func UpdateIssueRequestStatus(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		var input struct {
-			RequestType         string     `json:"request_type" binding:"required"`
-			ExpectedReturnDate  *time.Time `json:"expected_return_date"`
+			RequestType        string     `json:"request_type" binding:"required"`
+			ExpectedReturnDate *time.Time `json:"expected_return_date"`
 		}
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

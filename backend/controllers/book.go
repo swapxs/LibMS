@@ -1,3 +1,4 @@
+// /backend/controllers/book.go
 package controllers
 
 import (
@@ -12,10 +13,10 @@ import (
 // AddBookInput represents the payload for adding a book.
 type AddBookInput struct {
 	ISBN          string `json:"isbn" binding:"required"`
-	Title         string `json:"title"`          // Required only when creating a new book
-	Author        string `json:"author"`         // Required only when creating a new book
+	Title         string `json:"title"`  // Required only when creating a new book
+	Author        string `json:"author"` // Required only when creating a new book
 	Publisher     string `json:"publisher"`
-	Language      string `json:"language"`       // Required only when creating a new book
+	Language      string `json:"language"` // Required only when creating a new book
 	Version       string `json:"version"`
 	Copies        int    `json:"copies" binding:"required,gt=0"`
 	IncrementOnly bool   `json:"increment_only"`

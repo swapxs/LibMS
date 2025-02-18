@@ -1,3 +1,4 @@
+// /backend/models/issue_registry.go
 package models
 
 import (

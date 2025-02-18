@@ -1,3 +1,4 @@
+// frontend/src/components/Auth/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import apiService from "../../services/apiService";
@@ -20,11 +21,11 @@ function Login() {
       if (response.token) {
         // If the response does not include a name, derive one from the email.
         if (!response.name && response.email) {
-          // Use the part before the "@" as the name.
           response.name = response.email.split("@")[0];
         }
         // Save the full response in AuthContext.
         login(response);
+        // Navigate to the unified dashboard.
         navigate("/dashboard");
       } else {
         setError(response.error || "Login failed. Please check your credentials.");
