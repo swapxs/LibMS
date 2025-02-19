@@ -155,5 +155,3 @@ The database schema follows a relational structure that efficiently manages book
 - `POST /api/owner/revoke-admin` → Revoke admin privileges, demoting the user to Reader status.
 - `GET /api/owner/audit-logs` → Retrieve action logs for auditing purposes.
 
-This comprehensive API structure ensures smooth interaction between the frontend and backend, providing an intuitive user experience while maintaining robust security and data integrity.
-
