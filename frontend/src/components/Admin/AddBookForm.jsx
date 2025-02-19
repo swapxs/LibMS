@@ -77,12 +77,20 @@ function AddBookForm() {
 
   return (
     <div className="card">
-      <h3>{isNewBook ? "Add New Book" : "Add Copies to Existing Book"}</h3>
-      <button onClick={handleToggle}>
-        Switch to {isNewBook ? "Add Copies" : "New Book"} Mode
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {message && <p style={{ color: "green" }}>{message}</p>}
+    <div className="toggle-header">
+        <button
+          className={isNewBook ? "active" : "inactive"}
+          onClick={() => { if (!isNewBook) handleToggle(true);}}
+        >
+          Add New Book
+        </button>
+        <button
+          className={!isNewBook ? "active" : "inactive"}
+          onClick={() => { if (isNewBook) handleToggle(false);}}
+        >
+          Add Copies
+        </button>
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="isbn">ISBN:</label>
@@ -163,6 +171,8 @@ function AddBookForm() {
             required
           />
         </div>
+      {error && <p className="error">{error}</p>}
+      {message && <p className="success">{message}</p>}
         <button type="submit">
           {isNewBook ? "Add New Book" : "Add Copies"}
         </button>

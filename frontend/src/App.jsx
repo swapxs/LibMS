@@ -3,6 +3,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import NavBar from "./components/NavBar";
+import AccountDetails from "./components/AccountDetails";
 
 // Auth pages
 import Login from "./components/Auth/Login";
@@ -20,6 +21,10 @@ import UpdateBookForm from "./components/Admin/UpdateBookForm";
 import IssueRequestList from "./components/Admin/IssueRequestList";
 import Books from "./components/Books";
 
+import OwnerBanner from "./assets/OwnerBanner.png"
+import AdminBanner from "./assets/AdminBanner.png"
+import UserBanner from "./assets/UserBanner.png"
+
 // Reader pages
 import IssueRequestForm from "./components/User/IssueRequestForm";
 
@@ -36,13 +41,52 @@ function Dashboard() {
     <div className="card">
       {user ? (
         <>
-          <h2>Hello {user.role}!</h2>
-          <p>Welcome to the online library.</p>
+        {user && user.role === "Owner" && (
+            <>
+                <img src={OwnerBanner} alt="" />
+                <h2>Hello {user.name}!</h2>
+                <p>
+                    Since you are the owner of the library you can
+                    easily create and manage your library. Assign
+                    administrators, monitor book status, and ensure
+                    smooth operations with intuitive tools.
+                </p>
+                <AccountDetails />
+            </>
+            )}
+        {user && user.role === "LibraryAdmin" && (
+            <>
+                <img src={AdminBanner} alt="" />
+                <h2>Hello {user.name}!</h2>
+                <p>
+                    Since you have Administration Rights, You can add, update,
+                    and remove books seamlessly. Approve or decline issue
+                    requests, track book availability, and maintain an
+                    organized inventory.
+                </p>
+                <AccountDetails />
+            </>
+            )}
+        {user && user.role === "Reader" && (
+            <>
+                <img src={UserBanner} alt="" />
+                <h2>Hello {user.role}!</h2>
+                <p>
+                    Since you are a register user, you can search for books,
+                    request issues, and keep track of your
+                    borrowing history - all from one easy-to-use
+                    platform.
+                </p>
+                <AccountDetails />
+            </>
+            )}
         </>
       ) : (
         <div>
           <h2>Welcome to the online library.</h2>
-          <p>Please log in to see your dashboard.</p>
+          <p>
+            Your one-stop solution for managing libraries effortlessly. Whether you're an owner, an administrator, or a reader, our platform streamlines book inventory, issue requests, and borrowing history.
+        </p>
         </div>
       )}
     </div>

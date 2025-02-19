@@ -11,7 +11,7 @@
     --bg1: #3c3836;
     --green: green;
     --aqua: blue;
-    --red: red;
+    --red: #b00020;
     --bg-diff-red: #472322;
     --font-family: 'Poppins', sans-serif;
 }
@@ -79,6 +79,10 @@ body {
 .logoutbtn:hover {
     color: var(--red);
     background: none;
+
+    &::after {
+        content: " Logout";
+    }
 }
 
 /* Container for Main Content */
@@ -88,12 +92,27 @@ body {
     padding: 0 1rem;
 }
 
+.account-details {
+  margin: 20px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 2px solid black;
+  overflow-x: auto;
+}
+
+
 /* Card Styles */
 .card {
     background: var(--white);
     border-radius: 5px;
     padding: 1.5rem;
     margin: 1rem 0;
+    box-shadow: 0 2px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card img {
+    width: 100%;
+    border-radius: 5px;
     box-shadow: 0 2px 40px rgba(0, 0, 0, 0.1);
 }
 
@@ -140,12 +159,13 @@ body {
 }
 
 .books-table th {
-    background-color: var(--green);
+    background-color: var(--fg0);
+    color: var(--bg-dim);
     font-weight: 600;
 }
 
 .books-table tr:nth-child(even) {
-    background-color: #F3F1F7;
+    background-color: #f0f0f0;
 }
 
 .books-table tr:hover {
@@ -179,12 +199,12 @@ button:hover {
 /* Success and Error Messages */
 .success {
     color: var(--green);
-    margin-bottom: 1rem;
+    margin:0.7rem 0 0.7rem 0;
 }
 
 .error {
     color: var(--red);
-    margin-bottom: 0.5rem;
+    margin:0.7rem 0 0.7rem 0;
 }
 
 
@@ -324,3 +344,42 @@ button:hover {
 .form-group {
     margin-bottom: 1rem;
 }
+
+.toggle-header {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.toggle-header button {
+    /* font-size: 1.5rem; */
+    font-weight: 600;
+    padding: 1.5rem ;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    border: 1px solid #000;
+}
+
+.toggle-header button:hover {
+    background-color: var(--bg-dim);
+    color: var(--white);
+    /* font-size: 110%; */
+    width: 180%;
+
+}
+/* if inactive reduce the width to 20% if you get what I am saying */
+
+.toggle-header .active {
+    background-color: var(--bg-dim);
+    color: var(--white);
+}
+
+.toggle-header .inactive {
+    background-color: var(--white);
+    color: var(--bg-dim);
+}
+
+

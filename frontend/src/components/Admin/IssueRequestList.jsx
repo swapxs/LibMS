@@ -127,7 +127,7 @@ const IssueRequestList = () => {
       {loading ? (
         <p>Loading issue requests...</p>
       ) : error ? (
-        <p style={{ color: "red" }}>{error}</p>
+        <p className="error">{error}</p>
       ) : requests.length === 0 ? (
         <p>No issue requests found.</p>
       ) : (

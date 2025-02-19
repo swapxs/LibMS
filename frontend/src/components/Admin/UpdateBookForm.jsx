@@ -1,4 +1,3 @@
-// frontend/src/components/Admin/UpdateBookForm.jsx
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import apiService from "../../services/apiService";
@@ -16,6 +15,7 @@ const UpdateBookForm = () => {
     total_copies: "",
   });
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   // Handler for input changes for book details.
   const handleChange = (e) => {
@@ -24,16 +24,18 @@ const UpdateBookForm = () => {
 
   // Handler to search for a book by ISBN.
   const handleSearch = async () => {
+    setMessage("");
+    setError("");
+
     if (!isbn) {
-      setMessage("Please provide an ISBN.");
+      setError("Please provide an ISBN.");
       return;
     }
     try {
-      // Fetch books from the backend.
       const response = await apiService.getBooks(user.token);
       console.log("Books response:", response);
       let books = [];
-      // Check for different response formats.
+
       if (response.books && Array.isArray(response.books)) {
         books = response.books;
       } else if (response.success && Array.isArray(response.data)) {
@@ -41,13 +43,12 @@ const UpdateBookForm = () => {
       } else if (Array.isArray(response)) {
         books = response;
       } else {
-        setMessage("Invalid response format.");
+        setError("Invalid response format.");
         return;
       }
-      // Find the book with a matching ISBN.
+
       const book = books.find((b) => b.ISBN === isbn);
       if (book) {
-        // Populate formData using the values from the matched book.
         setFormData({
           title: book.Title || "",
           author: book.Author || "",
@@ -57,14 +58,14 @@ const UpdateBookForm = () => {
           total_copies: book.TotalCopies ? String(book.TotalCopies) : "",
         });
         setBookFound(true);
-        setMessage("");
+        setMessage("Book found!");
       } else {
-        setMessage("Book not found.");
+        setError("Book not found.");
         setBookFound(false);
       }
     } catch (error) {
       console.error("Error searching for book:", error);
-      setMessage("Error searching for book.");
+      setError("Error searching for book.");
       setBookFound(false);
     }
   };
@@ -72,50 +73,76 @@ const UpdateBookForm = () => {
   // Handler for updating the book details.
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
+
     if (!isbn) {
-      setMessage("Please provide the ISBN of the book to update.");
+      setError("Please provide the ISBN of the book to update.");
       return;
     }
     try {
       const payload = {};
-      // Only include provided fields.
       Object.keys(formData).forEach((key) => {
         if (formData[key] !== "") {
-          // For total_copies, convert to number.
           payload[key] = key === "total_copies" ? Number(formData[key]) : formData[key];
         }
       });
+
       const result = await apiService.updateBook(isbn, payload, user.token);
-      setMessage(result.message || result.error || "Update failed");
+      
+      if (result.success || result.message.toLowerCase().includes("updated")) {
+        setMessage(result.message || "Book details updated successfully.");
+
+        // Reset form after success
+        setTimeout(() => {
+          setIsbn("");
+          setBookFound(false);
+          setFormData({
+            title: "",
+            author: "",
+            publisher: "",
+            language: "",
+            version: "",
+            total_copies: "",
+          });
+          setMessage("");
+          setError("");
+          window.location.reload(); // Reload the page
+        }, 2000);
+      } else {
+        setError(result.error || "Failed to update book details.");
+      }
     } catch (err) {
       console.error("Error updating book:", err);
-      setMessage("An error occurred.");
+      setError("An error occurred while updating the book.");
     }
   };
 
   return (
     <div className="card">
       <h3>Update Book Details</h3>
-      {message && <p>{message}</p>}
-      {/* If no book has been found yet, show only the ISBN search field */}
+
+      {error && <p className="error">{error}</p>}
+      {message && <p className="success">{message}</p>}
+
       {!bookFound && (
-                <>
-        <div className="form-group">
-          <label htmlFor="isbn">Enter ISBN of Book:</label>
-          <input
-            type="text"
-            name="isbn"
-            value={isbn}
-            onChange={(e) => setIsbn(e.target.value)}
-            required
-          />
-                    </div>
+        <>
+          <div className="form-group">
+            <label htmlFor="isbn">Enter ISBN of Book:</label>
+            <input
+              type="text"
+              name="isbn"
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              required
+            />
+          </div>
           <button type="button" onClick={handleSearch}>
             Search
           </button>
-</>
+        </>
       )}
-      {/* If the book is found, display the form populated with its details */}
+
       {bookFound && (
         <form onSubmit={handleUpdate}>
           <div className="form-group">

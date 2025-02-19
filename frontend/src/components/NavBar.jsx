@@ -32,28 +32,28 @@ function NavBar() {
         )}
         {user && user.role === "Owner" && (
           <>
-            <Link to="/owner/assign-admin">Manage Users</Link>
-            <Link to="/owner/book-status">Book Status</Link>
+            <Link to="/owner/assign-admin"><i class="fa-solid fa-users"></i> Manage Users</Link>
+            <Link to="/owner/book-status"><i class="fa-solid fa-book-open-reader"></i> Book Status</Link>
           </>
         )}
         {user && (user.role === "admin" || user.role === "LibraryAdmin") && (
           <>
-            <Link to="/admin/add-book">Add Books</Link>
-            <Link to="/admin/remove-book">Remove Books</Link>
-            <Link to="/admin/update-book">Update Books</Link>
-            <Link to="/admin/issue-requests">Issue Requests</Link>
-            <Link to="/admin/all-books">All Books</Link>
+            <Link to="/admin/add-book"><i class="fa-solid fa-square-pen"></i> Add Books</Link>
+            <Link to="/admin/remove-book"><i class="fa-solid fa-trash"></i> Remove Books</Link>
+            <Link to="/admin/update-book"><i class="fa-solid fa-bookmark"></i> Update Books</Link>
+            <Link to="/admin/issue-requests"><i class="fa-solid fa-bell"></i> Issue Requests</Link>
+            <Link to="/admin/all-books"><i class="fa-solid fa-search"></i> Search Books</Link>
           </>
         )}
         {user && user.role === "Reader" && (
           <>
-            <Link to="/user/all-books">Search &amp; Issue Books</Link>
-            <Link to="/user/issue-request">Manual Issue Request</Link>
+            <Link to="/user/all-books"><i class="fa-solid fa-search"></i> Search Books</Link>
+            <Link to="/user/issue-request"><i class="fa-solid fa-cart-plus"></i> Issue Books</Link>
           </>
         )}
         {user && (
           <button className="logoutbtn" onClick={handleLogout}>
-            <i className="fa-solid fa-right-from-bracket"></i> Logout
+            <i className="fa-solid fa-right-from-bracket"></i>
           </button>
         )}
       </div>
