@@ -69,4 +69,3 @@ func TestRaiseRequest(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
-

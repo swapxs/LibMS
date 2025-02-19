@@ -51,12 +51,12 @@ func TestAddOrIncrementBook(t *testing.T) {
 		controllers.AddOrIncrementBook(db)(c)
 	})
 	input := controllers.AddBookInput{
-		ISBN:    "1234567890",
-		Title:   "Test Book",
-		Authors: "Author One",
+		ISBN:      "1234567890",
+		Title:     "Test Book",
+		Authors:   "Author One",
 		Publisher: "Test Publisher",
-		Version: "1st",
-		Copies:  5,
+		Version:   "1st",
+		Copies:    5,
 	}
 	jsonValue, _ := json.Marshal(input)
 	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonValue))
@@ -65,4 +65,3 @@ func TestAddOrIncrementBook(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
-

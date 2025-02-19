@@ -118,13 +118,13 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"token": tokenString,
-			"role": user.Role,
-			"library_id": user.LibraryID,
-			"name": user.Name,
-			"email": user.Email,
+			"token":          tokenString,
+			"role":           user.Role,
+			"library_id":     user.LibraryID,
+			"name":           user.Name,
+			"email":          user.Email,
 			"contact_number": user.ContactNumber,
-			"library_name": library.Name,
+			"library_name":   library.Name,
 		})
 	}
 }

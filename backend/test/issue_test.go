@@ -70,4 +70,3 @@ func TestIssueBook(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
-
