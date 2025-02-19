@@ -129,7 +129,7 @@ const IssueRequestList = () => {
       ) : error ? (
         <p className="error">{error}</p>
       ) : requests.length === 0 ? (
-        <p>No issue requests found.</p>
+        <p className="message">No issue requests found.</p>
       ) : (
         <table className="books-table">
           <thead>

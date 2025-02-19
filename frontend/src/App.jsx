@@ -21,9 +21,10 @@ import UpdateBookForm from "./components/Admin/UpdateBookForm";
 import IssueRequestList from "./components/Admin/IssueRequestList";
 import Books from "./components/Books";
 
-import OwnerBanner from "./assets/OwnerBanner.png"
-import AdminBanner from "./assets/AdminBanner.png"
-import UserBanner from "./assets/UserBanner.png"
+import OwnerBanner from "./assets/OwnerBanner.gif"
+import AdminBanner from "./assets/AdminBanner.gif"
+import UserBanner from "./assets/ReaderBanner.gif"
+import MainBanner from "./assets/MainBanner.gif"
 
 // Reader pages
 import IssueRequestForm from "./components/User/IssueRequestForm";
@@ -83,6 +84,7 @@ function Dashboard() {
         </>
       ) : (
         <div>
+        <img src={MainBanner} alt="" />
           <h2>Welcome to the online library.</h2>
           <p>
             Your one-stop solution for managing libraries effortlessly. Whether you're an owner, an administrator, or a reader, our platform streamlines book inventory, issue requests, and borrowing history.

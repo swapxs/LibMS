@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 
 function AccountDetails() {
   const storedUser = localStorage.getItem("authData");
@@ -8,9 +7,9 @@ const [showDetails, setShowDetails] = useState(false);
 
   return (
     <div className="account-details">
-      <h4 onClick={() => setShowDetails(!showDetails)} style={{ cursor: "pointer" }}>
-        Account Details {showDetails ? "▲" : "▼"}
-      </h4>
+      <div className="account-head"  onClick={() => setShowDetails(!showDetails)} style={{ cursor: "pointer" }}>
+        Account Details {showDetails ? <i class="fa-solid fa-caret-up"></i> : <i class="fa-solid fa-caret-down"></i>}
+      </div>
 
       {showDetails && user && (
         <div className="details-content">
