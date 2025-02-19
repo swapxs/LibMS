@@ -111,6 +111,20 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"token": tokenString, "role": user.Role, "library_id": user.LibraryID})
+		var library models.Library
+
+		if err := db.First(&library, user.LibraryID).Error; err != nil {
+			library.Name = "N/A"
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"token": tokenString,
+			"role": user.Role,
+			"library_id": user.LibraryID,
+			"name": user.Name,
+			"email": user.Email,
+			"contact_number": user.ContactNumber,
+			"library_name": library.Name,
+		})
 	}
 }
