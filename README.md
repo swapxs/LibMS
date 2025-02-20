@@ -1,4 +1,4 @@
-# **Library Management System (LibMS)**
+# **Library Management System**
 
 ## **📌 Overview**
 The **Library Management System (LibMS)** is a **full-stack application** that enables libraries to manage book inventories, process issue requests, and oversee borrowing history. It supports three roles:
