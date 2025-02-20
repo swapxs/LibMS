@@ -7,7 +7,7 @@ function Books() {
   const { user } = useAuth();
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
-  const [activeRequests, setActiveRequests] = useState([]);
+  const [activeRequests, setActiveRequests] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -32,16 +32,23 @@ function Books() {
         setLoading(false);
       }
     }
+
     async function fetchActiveRequests() {
       try {
         const response = await apiService.getUserIssueInfo(user.token);
         if (response.success && Array.isArray(response.data)) {
-          setActiveRequests(response.data.map((request) => request.isbn));
+          // Store book ISBNs and their request statuses
+          const requestStatusMap = {};
+          response.data.forEach((request) => {
+            requestStatusMap[request.isbn] = request.issue_status; // Assuming issue_status contains Approved/Pending/Rejected
+          });
+          setActiveRequests(requestStatusMap);
         }
       } catch (error) {
         console.error('Error fetching active requests:', error);
       }
     }
+
     if (user && user.token) {
       fetchBooks();
       fetchActiveRequests();
@@ -78,11 +85,14 @@ function Books() {
         const text = await response.text();
         throw new Error(text);
       }
-      setActiveRequests((prev) => [...prev, isbn]);
+      setActiveRequests((prev) => ({
+        ...prev,
+        [isbn]: "Pending", // Mark the request as pending
+      }));
       setMessage(<p className='success'>Book issue request submitted successfully.</p>);
     } catch (err) {
-      setMessage(<p className='error'>Error submitting issue request. You have exhausted you quota for the time being</p>);
-            console.log(err.message)
+      setMessage(<p className='error'>Error submitting issue request. You have exhausted your quota for the time being</p>);
+      console.log(err.message);
     }
   };
 
@@ -113,27 +123,35 @@ function Books() {
               <th>Author</th>
               <th>Publisher</th>
               <th>Language</th>
+              <th>Version</th>
+              {user && user.role === 'LibraryAdmin' && <th>Copies Available</th>}
               {user && user.role === 'Reader' && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {filteredBooks.map((book) => (
-              <tr key={book.isbn || book.ISBN}>
-                <td>{book.isbn || book.ISBN}</td>
-                <td>{book.title || book.Title}</td>
-                <td>{book.author || book.Author}</td>
-                <td>{book.publisher || book.Publisher}</td>
-                <td>{book.language || book.Language}</td>
+              <tr key={book.ISBN}>
+                <td>{book.ISBN}</td>
+                <td>{book.Title}</td>
+                <td>{book.Author}</td>
+                <td>{book.Publisher}</td>
+                <td>{book.Language}</td>
+                <td>{book.Version}</td>
+                {user && user.role === 'LibraryAdmin' && 
+                <td>{book.AvailableCopies} / {book.TotalCopies}</td>
+                }
                 {user && user.role === 'Reader' && (
                   <td className="profile-actions">
-                    <button
-                      onClick={() => handleIssueBook(book.isbn || book.ISBN)}
-                      id={`btn-${book.isbn || book.ISBN}`}
-                      style={{ display: activeRequests.includes(book.isbn || book.ISBN) ? 'none' : 'inline-block' }}
-                      disabled={activeRequests.includes(book.isbn || book.ISBN) || activeRequests.length >= 4}
-                    >
-                      Issue
-                    </button>
+                    {(!activeRequests[book.ISBN] || activeRequests[book.ISBN] === "Rejected") ? (
+                      <button
+                        onClick={() => handleIssueBook(book.ISBN)}
+                        id={`btn-${book.ISBN}`}
+                      >
+                        Issue
+                      </button>
+                    ) : (
+                      <p>{activeRequests[book.ISBN]}</p> // Display status instead of button
+                    )}
                   </td>
                 )}
               </tr>

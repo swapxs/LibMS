@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/swapxs/LibMS/backend/controllers"
+	"github.com/swapxs/LibMS/backend/handlers"
 	"github.com/swapxs/LibMS/backend/middleware"
 	"gorm.io/gorm"
 )
@@ -28,43 +28,43 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	api := r.Group("/api")
 	{
 		// Public endpoints.
-		api.POST("/library", controllers.CreateLibrary(db))
-		api.GET("/libraries", controllers.GetLibraries(db))
-		api.POST("/owner/registration", controllers.RegisterLibraryOwner(db))
-		api.POST("/auth/login", controllers.Login(db))
-		api.POST("/auth/register", controllers.RegisterUser(db))
+		api.POST("/library", handlers.CreateLibrary(db))
+		api.GET("/libraries", handlers.GetLibraries(db))
+		api.POST("/owner/registration", handlers.RegisterLibraryOwner(db))
+		api.POST("/auth/login", handlers.Login(db))
+		api.POST("/auth/register", handlers.RegisterUser(db))
 
 		// Protected endpoints.
 		protected := api.Group("/")
 		protected.Use(middleware.JWTAuthMiddleware())
 		{
-			protected.GET("/users", controllers.GetUsers(db))
-			protected.GET("/auth/userIssueInfo", controllers.GetUserIssueInfo(db))
+			protected.GET("/users", handlers.GetUsers(db))
+			protected.GET("/auth/userIssueInfo", handlers.GetUserIssueInfo(db))
 			// Book endpoints.
 			books := protected.Group("/books")
 			{
-				books.POST("", controllers.AddOrIncrementBook(db))
-				books.GET("", controllers.GetBooks(db))
-				books.POST("/remove", controllers.RemoveBook(db))
-				books.PUT("/:isbn", controllers.UpdateBook(db))
+				books.POST("", handlers.AddOrIncrementBook(db))
+				books.GET("", handlers.GetBooks(db))
+				books.POST("/remove", handlers.RemoveBook(db))
+				books.PUT("/:isbn", handlers.UpdateBook(db))
 			}
 			// Owner endpoints.
 			owner := protected.Group("/owner")
 			{
-				owner.POST("/assign-admin", controllers.AssignAdmin(db))
-				owner.POST("/revoke-admin", controllers.RevokeAdmin(db))
+				owner.POST("/assign-admin", handlers.AssignAdmin(db))
+				owner.POST("/revoke-admin", handlers.RevokeAdmin(db))
 			}
 			// Request events.
-			protected.POST("/requestEvents", controllers.RaiseRequest(db))
+			protected.POST("/requestEvents", handlers.RaiseRequest(db))
 			// Issue Request endpoints.
 			issue := protected.Group("/issueRequests")
 			{
-				issue.POST("", controllers.CreateIssueRequest(db))
-				issue.GET("", controllers.GetIssueRequests(db))
-				issue.PUT("/:id", controllers.UpdateIssueRequestStatus(db))
+				issue.POST("", handlers.CreateIssueRequest(db))
+				issue.GET("", handlers.GetIssueRequests(db))
+				issue.PUT("/:id", handlers.UpdateIssueRequestStatus(db))
 			}
 			// Issue Registry endpoint.
-			protected.POST("/issueRegistry", controllers.IssueBook(db))
+			protected.POST("/issueRegistry", handlers.IssueBook(db))
 		}
 	}
 
