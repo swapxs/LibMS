@@ -1,52 +1,70 @@
 # **Backend Workflow - Library Management System**
 
-## **📌 Overview**
+## **Overview**
 The backend of the **Library Management System (LibMS)** is responsible for handling user authentication, managing book inventories, processing issue requests, and maintaining user roles and permissions. Built with **Go (Gin framework)** and **PostgreSQL (GORM ORM)**, it ensures high performance and secure operations.
 
 ---
 
-## **🛠️ Technology Stack**
+## **Technology Stack**
 - **Language:** Go (Gin framework)
-- **Database:** PostgreSQL (GORM ORM)
+- **Database:** PostgreSQL (GORM ORM), SQLite (testing)
 - **Authentication:** JWT-based authentication
 - **Middleware:** JWT for authorization, CORS for cross-origin requests
 - **Configuration:** `.env` files for environment management
 - **Logging & Error Handling:** Structured logging for debugging and monitoring
 - **Testing:** Unit testing using Go's built-in framework and `sqlmock` for database interactions
 
+## NOTE
+The test report is saved as a csv in `./.blob/report`. You can generate the report via running the shellscipt `./gen_report.sh`
+
+
 ---
 
-## **📁 Backend Project Structure**
+## **Backend Project Structure**
 ```
 backend
-├── controllers      # Handles business logic
-│   ├── auth.go      # User authentication
-│   ├── book.go      # Book inventory management
-│   ├── issue.go     # Book issue processing
-│   ├── library.go   # Library creation & management
-│   ├── owner.go     # Admin & owner role management
-│   ├── request_events.go  # User issue requests handling
-│   └── user.go      # User management
-├── db
-│   └── db.go        # Database connection and migrations
-├── main.go          # Entry point for backend server
-├── middleware
-│   └── jwt.go       # JWT authentication middleware
-├── models           # Database schema definitions
-│   ├── book_inventory.go
-│   ├── issue_registry.go
-│   ├── library.go
-│   ├── request_events.go
-│   └── user.go
-├── routes
-│   └── routes.go    # API route definitions
-├── seed.go          # Database seeding script
-└── go.mod & go.sum  # Dependency management
+├── README.md
+├── gen_report.sh
+├── go.mod
+├── go.sum
+├── src
+│   ├── db
+│   │   └── db.go
+│   ├── handlers
+│   │   ├── auth_handler.go
+│   │   ├── book_handler.go
+│   │   ├── claims_handler.go
+│   │   ├── issue_handler.go
+│   │   ├── library_handler.go
+│   │   ├── owner_handler.go
+│   │   ├── request_events_handler.go
+│   │   └── user_handler.go
+│   ├── main.go
+│   ├── middleware
+│   │   └── jwt.go
+│   ├── models
+│   │   ├── book_inventory_model.go
+│   │   ├── issue_registry_model.go
+│   │   ├── library_model.go
+│   │   ├── request_events_model.go
+│   │   └── user_model.go
+│   └── routes
+│       └── routes.go
+└── test
+    ├── books_test.go
+    ├── db_setup_test.go
+    ├── issue_request_test.go
+    ├── library_test.go
+    ├── login_user_test.go
+    ├── negative_test.go
+    ├── owner_operations_test.go
+    ├── raise_request_test.go
+    └── register_user_test.go
 ```
 
 ---
 
-## **🔐 Authentication Workflow**
+## **Authentication Workflow**
 ### **1️⃣ User Registration (`POST /api/auth/register`)**
 1. User submits registration details (name, email, password, contact, role, library ID).
 2. Password is **hashed** using `bcrypt`.
@@ -66,7 +84,7 @@ backend
 
 ---
 
-## **📚 Book Management Workflow**
+## **Book Management Workflow**
 ### **1️⃣ Add Book (`POST /api/books`)**
 1. Admin submits book details (ISBN, title, author, copies, etc.).
 2. If book exists, copies are incremented.
@@ -83,7 +101,7 @@ backend
 
 ---
 
-## **📑 Request Handling Workflow**
+## **Request Handling Workflow**
 ### **1️⃣ Raise Book Request (`POST /api/requestEvents`)**
 1. Readers can request up to **4 active book requests**.
 2. System checks **book availability** before processing request.
@@ -98,7 +116,7 @@ backend
 
 ---
 
-## **📌 Book Issue & Return Workflow**
+## **Book Issue & Return Workflow**
 ### **1️⃣ Issue Book (`POST /api/issueRegistry`)**
 1. Approved requests result in book issuance.
 2. Entry is created in `issue_registry` with **expected return date**.
@@ -111,7 +129,7 @@ backend
 
 ---
 
-## **🛠️ Admin & Owner Management Workflow**
+## **Admin & Owner Management Workflow**
 ### **1️⃣ Assign Admin (`POST /api/owner/assign-admin`)**
 1. Owner selects a user via email.
 2. User’s role is updated to `LibraryAdmin`.
@@ -125,31 +143,31 @@ backend
 
 ---
 
-## **🔗 API Endpoints Summary**
-### **🔹 Authentication**
+## **API Endpoints Summary**
+### **Authentication**
 - `POST /api/auth/register` → Register new user
 - `POST /api/auth/login` → User login & JWT token generation
 
-### **🔹 Library Management**
+### **Library Management**
 - `POST /api/library` → Create a new library
 - `GET /api/libraries` → Get all libraries
 
-### **🔹 Book Inventory**
+### **Book Inventory**
 - `POST /api/books` → Add/increment book copies
 - `GET /api/books` → Retrieve all books
 - `POST /api/books/remove` → Remove book copies
 - `PUT /api/books/:isbn` → Update book details
 
-### **🔹 Book Requests**
+### **Book Requests**
 - `POST /api/requestEvents` → Request book issue
 - `GET /api/issueRequests` → Get all book requests
 - `PUT /api/issueRequests/:id` → Approve/reject issue request
 
-### **🔹 Issue & Return**
+### **Issue & Return**
 - `POST /api/issueRegistry` → Issue a book
 - `POST /api/issueRegistry/return` → Return a book
 
-### **🔹 Admin Actions**
+### **Admin Actions**
 - `POST /api/owner/assign-admin` → Assign admin role
 - `POST /api/owner/revoke-admin` → Revoke admin role
 - `GET /api/owner/audit-logs` → Retrieve audit logs
