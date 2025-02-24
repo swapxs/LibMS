@@ -97,3 +97,48 @@ func TestRegisterUser_BadRequest(t *testing.T) {
 
     assert.Equal(t, http.StatusBadRequest, w.Code)
 }
+
+func TestRegisterUser_InvalidEmailFormat(t *testing.T) {
+    db := setupTestDB(t)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+    r.POST("/auth/register", handlers.RegisterUser(db))
+
+    // Provide an invalid email field
+    payload, _ := json.Marshal(map[string]any {
+        "name":           "XenonUser",
+        "email":          "email",
+        "password":       "password123",
+        "contact_number": "1112223333",
+    })
+    req, _ := http.NewRequest("POST", "/auth/register", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusBadRequest, w.Code, "Invalid email should yield 400")
+}
+
+func TestRegisterUser_ShortPassword(t *testing.T) {
+    db := setupTestDB(t)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+    r.POST("/auth/register", handlers.RegisterUser(db))
+
+    payload, _ := json.Marshal(map[string]any {
+        "name":           "XenonUser",
+        "email":          "shortpass@xenonstack.com",
+        "password":       "abc",
+        "contact_number": "9999999999",
+    })
+    req, _ := http.NewRequest("POST", "/auth/register", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusBadRequest, w.Code, "Short password should fail binding/validation")
+}

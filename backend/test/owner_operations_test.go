@@ -41,7 +41,6 @@ func TestRegisterLibraryOwner_Success(t *testing.T) {
 
     assert.Equal(t, http.StatusCreated, w.Code)
 
-    // Check that both the library and the owner were created
     var lib models.Library
     err := db.Where("name = ?", "Test Library").First(&lib).Error
     assert.NoError(t, err)
@@ -91,7 +90,7 @@ func TestAssignAdmin_Success(t *testing.T) {
         LibraryID:     1,
     }
     db.Create(&owner)
-    // Seed a normal user (Reader)
+
     normalUser := models.User{
         Name:          "Test Reader",
         Email:         "reader@xenonstack.com",
@@ -183,7 +182,6 @@ func TestAssignAdmin_Unauthorized(t *testing.T) {
 func TestAssignAdmin_UserNotFound(t *testing.T) {
     db := setupTestDB(t)
 
-    // Seed an Owner
     owner := models.User{
         Name:          "Owner Person",
         Email:         "realowner@xenonstack.com",
@@ -229,7 +227,6 @@ func TestAssignAdmin_UserNotFound(t *testing.T) {
 func TestRevokeAdmin_Success(t *testing.T) {
     db := setupTestDB(t)
 
-    // Seed an Owner user
     owner := models.User{
         Name:          "Test Owner",
         Email:         "owner@xenonstack.com",
@@ -241,7 +238,6 @@ func TestRevokeAdmin_Success(t *testing.T) {
 
     db.Create(&owner)
 
-    // Seed a user with LibraryAdmin role
     adminUser := models.User{
         Name:          "Admin User",
         Email:         "admin@xenonstack.com",
@@ -256,7 +252,7 @@ func TestRevokeAdmin_Success(t *testing.T) {
     gin.SetMode(gin.TestMode)
 
     r := gin.New()
-    // Mock middleware to inject Owner JWT claims
+
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(owner.ID),
@@ -304,12 +300,11 @@ func TestRevokeAdmin_Unauthorized(t *testing.T) {
     gin.SetMode(gin.TestMode)
     r := gin.New()
 
-    // Mock middleware to inject non-owner JWT claims
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(malicious.ID),
             "email":      malicious.Email,
-            "role":       malicious.Role, // "LibraryAdmin"
+            "role":       malicious.Role,
             "library_id": float64(malicious.LibraryID),
         }
         c.Set("user", claims)
@@ -327,7 +322,6 @@ func TestRevokeAdmin_Unauthorized(t *testing.T) {
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    // Non-owner user => Expect 401 Unauthorized
     assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
@@ -371,6 +365,209 @@ func TestRevokeAdmin_UserNotFound(t *testing.T) {
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    // The user is not found in the DB => 404
     assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+// TestAssignAdmin_AlreadyAdmin ensures that assigning admin to a user who is
+// already a LibraryAdmin doesn't break anything.
+func TestAssignAdmin_AlreadyAdmin(t *testing.T) {
+    db := setupTestDB(t)
+
+    owner := models.User{
+        Name:          "Owner Person",
+        Email:         "owner@xenonstack.com",
+        Password:      "hashedownerpw",
+        ContactNumber: "1112223333",
+        Role:          "Owner",
+        LibraryID:     1,
+    }
+    db.Create(&owner)
+
+    existingAdmin := models.User{
+        Name:          "Already Admin",
+        Email:         "alreadyadmin@xenonstack.com",
+        Password:      "somepass",
+        ContactNumber: "4445556666",
+        Role:          "LibraryAdmin",
+        LibraryID:     1,
+    }
+    db.Create(&existingAdmin)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(owner.ID),
+            "email":      owner.Email,
+            "role":       owner.Role,
+            "library_id": float64(owner.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/assign-admin", handlers.AssignAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "alreadyadmin@xenonstack.com",
+    })
+    req, _ := http.NewRequest("POST", "/owner/assign-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+
+    var updatedUser models.User
+    err := db.Where("email = ?", "alreadyadmin@xenonstack.com").First(&updatedUser).Error
+    assert.NoError(t, err)
+    assert.Equal(t, "LibraryAdmin", updatedUser.Role)
+}
+
+// TestRevokeAdmin_AlreadyReader tries to revoke admin from a user who is already a Reader.
+func TestRevokeAdmin_AlreadyReader(t *testing.T) {
+    db := setupTestDB(t)
+
+    owner := models.User{
+        Name:          "Owner Person",
+        Email:         "owner@xenonstack.com",
+        Password:      "hashedownerpw",
+        ContactNumber: "1112223333",
+        Role:          "Owner",
+        LibraryID:     1,
+    }
+
+    db.Create(&owner)
+
+    existingReader := models.User{
+        Name:          "Reader Already",
+        Email:         "reader@xenonstack.com",
+        Password:      "somepass",
+        ContactNumber: "4445556666",
+        Role:          "Reader",
+        LibraryID:     1,
+    }
+    db.Create(&existingReader)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(owner.ID),
+            "email":      owner.Email,
+            "role":       owner.Role,
+            "library_id": float64(owner.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/revoke-admin", handlers.RevokeAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "reader@xenonstack.com",
+    })
+    req, _ := http.NewRequest("POST", "/owner/revoke-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+
+    var updatedUser models.User
+    err := db.Where("email = ?", "reader@xenonstack.com").First(&updatedUser).Error
+    assert.NoError(t, err)
+    assert.Equal(t, "Reader", updatedUser.Role)
+}
+
+// TestOwnerRevokeSelf checks the scenario of an Owner trying to revoke
+// themselves. If your system disallows that, you might expect 400 or 403.
+// If it allows it, you'd expect 200 and a new role for the user. Adjust accordingly.
+func TestOwnerRevokeSelf(t *testing.T) {
+    db := setupTestDB(t)
+
+    owner := models.User{
+        Name:          "Self-Owner",
+        Email:         "selfowner@xenonstack.com",
+        Password:      "hashedownerpw",
+        ContactNumber: "abcdef",
+        Role:          "Owner",
+        LibraryID:     1,
+    }
+
+    db.Create(&owner)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(owner.ID),
+            "email":      owner.Email,
+            "role":       owner.Role,
+            "library_id": float64(owner.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/revoke-admin", handlers.RevokeAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "selfowner@xenonstack.com",
+    })
+    req, _ := http.NewRequest("POST", "/owner/revoke-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+
+    assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+// TestNonOwnerAttemptsCreateLibrary checks if you want only owners to create new libraries
+func TestNonOwnerAttemptsCreateLibrary(t *testing.T) {
+    db := setupTestDB(t)
+
+    normalUser := models.User{
+        Name:          "Normal Joe",
+        Email:         "user@xenonstack.com",
+        Password:      "normal",
+        ContactNumber: "1234",
+        Role:          "Reader",
+        LibraryID:     1,
+    }
+    db.Create(&normalUser)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(normalUser.ID),
+            "email":      normalUser.Email,
+            "role":       normalUser.Role,
+            "library_id": float64(normalUser.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/library", handlers.CreateLibrary(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "name": "Another Library",
+    })
+    req, _ := http.NewRequest("POST", "/library", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
