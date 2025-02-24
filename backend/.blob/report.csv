@@ -1,0 +1,13 @@
+File,Coverage
+github.com/swapxs/LibMS/backend/src/handlers/request_events_handler.go,67.6%
+github.com/swapxs/LibMS/backend/src/handlers/issue_handler.go,73.15%
+github.com/swapxs/LibMS/backend/src/handlers/claims_handler.go,62.5%
+github.com/swapxs/LibMS/backend/src/handlers/auth_handler.go,85.25%
+github.com/swapxs/LibMS/backend/src/routes/routes.go,0%
+github.com/swapxs/LibMS/backend/src/db/db.go,0%
+github.com/swapxs/LibMS/backend/src/middleware/jwt.go,51.9%
+github.com/swapxs/LibMS/backend/src/main.go,0%
+github.com/swapxs/LibMS/backend/src/handlers/user_handler.go,0%
+github.com/swapxs/LibMS/backend/src/handlers/owner_handler.go,69.5667%
+github.com/swapxs/LibMS/backend/src/handlers/library_handler.go,74.25%
+github.com/swapxs/LibMS/backend/src/handlers/book_handler.go,47.775%
