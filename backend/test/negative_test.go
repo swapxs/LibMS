@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"github.com/swapxs/LibMS/backend/handlers"
-	"github.com/swapxs/LibMS/backend/middleware"
+	"github.com/swapxs/LibMS/backend/src/handlers"
+	"github.com/swapxs/LibMS/backend/src/middleware"
 )
 
 // TestUnauthorizedAccess_NoToken calls a protected endpoint without providing any token.

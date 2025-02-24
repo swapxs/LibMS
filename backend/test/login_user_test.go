@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/swapxs/LibMS/backend/handlers"
-	"github.com/swapxs/LibMS/backend/models"
+	"github.com/swapxs/LibMS/backend/src/handlers"
+	"github.com/swapxs/LibMS/backend/src/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

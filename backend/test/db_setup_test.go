@@ -4,7 +4,7 @@ package handlers_test
 import (
 	"testing"
 
-	"github.com/swapxs/LibMS/backend/models"
+	"github.com/swapxs/LibMS/backend/src/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

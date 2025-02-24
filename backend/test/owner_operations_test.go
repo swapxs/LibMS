@@ -9,8 +9,8 @@ import (
     "testing"
 
     "github.com/gin-gonic/gin"
-    "github.com/swapxs/LibMS/backend/handlers"
-    "github.com/swapxs/LibMS/backend/models"
+    "github.com/swapxs/LibMS/backend/src/handlers"
+    "github.com/swapxs/LibMS/backend/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/golang-jwt/jwt/v4"
 )
