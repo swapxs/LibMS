@@ -74,7 +74,11 @@ func AssignAdmin(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Only owner can assign admin rights"})
 			return
 		}
-		ownerLibraryID := uint(claims["library_id"].(float64))
+		ownerLibraryID, err := getUintFromClaim(claims, "library_id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 		var input AssignAdminInput
 		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

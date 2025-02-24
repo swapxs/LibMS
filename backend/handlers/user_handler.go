@@ -14,7 +14,11 @@ import (
 func GetUsers(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
-		libraryID := uint(claims["library_id"].(float64))
+		libraryID, err := getUintFromClaim(claims, "library_id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 		var users []models.User
 		if err := db.Where("library_id = ?", libraryID).Find(&users).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

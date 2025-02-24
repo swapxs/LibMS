@@ -34,10 +34,15 @@ func AddOrIncrementBook(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		claims := c.MustGet("user").(jwt.MapClaims)
-		libraryID := uint(claims["library_id"].(float64))
+		libraryID, err := getUintFromClaim(claims, "library_id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 
 		var book models.BookInventory
-		err := db.Where("isbn = ? AND library_id = ?", input.ISBN, libraryID).First(&book).Error
+		err = db.Where("isbn = ? AND library_id = ?", input.ISBN, libraryID).First(&book).Error
 
 		if err == nil {
 			// Book record exists: Increment copies.
@@ -47,7 +52,7 @@ func AddOrIncrementBook(db *gorm.DB) gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			c.JSON(http.StatusOK, gin.H{"message": "Book copies incremented", "book": book})
+			c.JSON(http.StatusCreated, gin.H{"message": "Book copies incremented", "book": book})
 			return
 		} else if err != gorm.ErrRecordNotFound {
 			// Some other error occurred.

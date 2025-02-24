@@ -39,11 +39,15 @@ func GetIssueRequests(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get library id from token claims.
 		claims := c.MustGet("user").(jwt.MapClaims)
-		libraryID := uint(claims["library_id"].(float64))
+		libraryID, err := getUintFromClaim(claims, "library_id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
 		var details []IssueRequestDetail
 		// Query joining request_events, book_inventories, users, and issue_registry to derive issue status correctly.
-		err := db.Raw(`
+		err = db.Raw(`
 			SELECT 
 				re.req_id AS "ReqID",
 				re.book_id AS "BookID",

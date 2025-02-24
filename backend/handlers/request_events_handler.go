@@ -30,8 +30,16 @@ func RaiseRequest(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		tokenClaims := claims.(jwt.MapClaims)
-		readerID := uint(tokenClaims["id"].(float64))
-		libraryID := uint(tokenClaims["library_id"].(float64))
+		readerID, err := getUintFromClaim(tokenClaims, "id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		libraryID, err := getUintFromClaim(tokenClaims, "library_id")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
 		// Count active requests (Pending or Approved) for the user.
 		var activeRequests int64
