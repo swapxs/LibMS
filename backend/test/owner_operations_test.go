@@ -138,7 +138,8 @@ func TestAssignAdmin_Success(t *testing.T) {
 // Assigning Admin as an unauthorized user or just a normal user
 func TestAssignAdmin_Unauthorized(t *testing.T) {
     db := setupTestDB(t)
-    nonOwner := models.User{
+
+    malicious := models.User{
         Name:          "Not Owner",
         Email:         "notowner@xenonstack.com",
         Password:      "hashedpw",
@@ -146,17 +147,18 @@ func TestAssignAdmin_Unauthorized(t *testing.T) {
         Role:          "Reader", 
         LibraryID:     1,
     }
-    db.Create(&nonOwner)
+
+    db.Create(&malicious)
 
     gin.SetMode(gin.TestMode)
-    r := gin.New()
 
+    r := gin.New()
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
-            "id":         float64(nonOwner.ID),
-            "email":      nonOwner.Email,
-            "role":       nonOwner.Role,
-            "library_id": float64(nonOwner.LibraryID),
+            "id":         float64(malicious.ID),
+            "email":      malicious.Email,
+            "role":       malicious.Role,
+            "library_id": float64(malicious.LibraryID),
         }
         c.Set("user", claims)
         c.Next()
@@ -167,6 +169,7 @@ func TestAssignAdmin_Unauthorized(t *testing.T) {
     payload, _ := json.Marshal(map[string]any {
         "email": "any@xenonstack.com",
     })
+
     req, _ := http.NewRequest("POST", "/owner/assign-admin", bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
@@ -179,6 +182,7 @@ func TestAssignAdmin_Unauthorized(t *testing.T) {
 // Assigning admin but the user is not present
 func TestAssignAdmin_UserNotFound(t *testing.T) {
     db := setupTestDB(t)
+
     // Seed an Owner
     owner := models.User{
         Name:          "Owner Person",
@@ -221,3 +225,152 @@ func TestAssignAdmin_UserNotFound(t *testing.T) {
     assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
+// TestRevokeAdmin_Success seeds an Owner and a LibraryAdmin user, then revokes admin rights.
+func TestRevokeAdmin_Success(t *testing.T) {
+    db := setupTestDB(t)
+
+    // Seed an Owner user
+    owner := models.User{
+        Name:          "Test Owner",
+        Email:         "owner@xenonstack.com",
+        Password:      "hashedownerpw",
+        ContactNumber: "123456",
+        Role:          "Owner",
+        LibraryID:     1,
+    }
+
+    db.Create(&owner)
+
+    // Seed a user with LibraryAdmin role
+    adminUser := models.User{
+        Name:          "Admin User",
+        Email:         "admin@xenonstack.com",
+        Password:      "hashedadminpw",
+        ContactNumber: "555555",
+        Role:          "LibraryAdmin",
+        LibraryID:     1,
+    }
+
+    db.Create(&adminUser)
+
+    gin.SetMode(gin.TestMode)
+
+    r := gin.New()
+    // Mock middleware to inject Owner JWT claims
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(owner.ID),
+            "email":      owner.Email,
+            "role":       owner.Role,
+            "library_id": float64(owner.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/revoke-admin", handlers.RevokeAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "admin@xenonstack.com",
+    })
+    req, _ := http.NewRequest("POST", "/owner/revoke-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+
+    var updatedUser models.User
+    err := db.Where("email = ?", "admin@xenonstack.com").First(&updatedUser).Error
+    assert.NoError(t, err)
+    assert.Equal(t, "Reader", updatedUser.Role)
+}
+
+// TestRevokeAdmin_Unauthorized seeds a non-owner user who tries to revoke admin.
+func TestRevokeAdmin_Unauthorized(t *testing.T) {
+    db := setupTestDB(t)
+
+    malicious := models.User{
+        Name:          "Admin",
+        Email:         "hacker@xenonstack.com",
+        Password:      "fakehash",
+        ContactNumber: "123",
+        Role:          "LibraryAdmin",
+        LibraryID:     1,
+    }
+    db.Create(&malicious)
+
+    gin.SetMode(gin.TestMode)
+    r := gin.New()
+
+    // Mock middleware to inject non-owner JWT claims
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(malicious.ID),
+            "email":      malicious.Email,
+            "role":       malicious.Role, // "LibraryAdmin"
+            "library_id": float64(malicious.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/revoke-admin", handlers.RevokeAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "someadmin@xenonstack.com", 
+    })
+    req, _ := http.NewRequest("POST", "/owner/revoke-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    // Non-owner user => Expect 401 Unauthorized
+    assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+// TestRevokeAdmin_UserNotFound seeds an Owner but tries to revoke a nonexistent user.
+func TestRevokeAdmin_UserNotFound(t *testing.T) {
+    db := setupTestDB(t)
+
+    owner := models.User{
+        Name:          "Actual Owner",
+        Email:         "actualowner@xenonstack.com",
+        Password:      "fakepw",
+        ContactNumber: "7890",
+        Role:          "Owner",
+        LibraryID:     5,
+    }
+    db.Create(&owner)
+
+    gin.SetMode(gin.TestMode)
+
+    r := gin.New()
+    r.Use(func(c *gin.Context) {
+        claims := jwt.MapClaims{
+            "id":         float64(owner.ID),
+            "email":      owner.Email,
+            "role":       owner.Role, 
+            "library_id": float64(owner.LibraryID),
+        }
+        c.Set("user", claims)
+        c.Next()
+    })
+
+    r.POST("/owner/revoke-admin", handlers.RevokeAdmin(db))
+
+    payload, _ := json.Marshal(map[string]string{
+        "email": "nonexistent@xenonstack.com",
+    })
+
+    req, _ := http.NewRequest("POST", "/owner/revoke-admin", bytes.NewBuffer(payload))
+    req.Header.Set("Content-Type", "application/json")
+
+    w := httptest.NewRecorder()
+    r.ServeHTTP(w, req)
+
+    // The user is not found in the DB => 404
+    assert.Equal(t, http.StatusNotFound, w.Code)
+}
