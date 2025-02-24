@@ -15,7 +15,50 @@ import (
     "github.com/stretchr/testify/assert"
     "github.com/swapxs/LibMS/backend/src/handlers"
     "github.com/swapxs/LibMS/backend/src/models"
+    "gorm.io/gorm"
 )
+
+func setupRequestEventsRouter(db *gorm.DB, claims jwt.MapClaims) *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+
+	// Mock middleware to inject JWT claims
+	r.Use(func(c *gin.Context) {
+		c.Set("user", claims)
+		c.Next()
+	})
+
+	r.POST("/requestEvents", handlers.RaiseRequest(db))
+	return r
+}
+
+func seedBook(db *gorm.DB, isbn string, totalCopies int, availableCopies int) {
+	book := models.BookInventory{
+		ISBN:            isbn,
+		LibraryID:       1,
+		Title:           "Golang Book",
+		Author:          "John Doe",
+		Publisher:       "Some Publisher",
+		Language:        "English",
+		Version:         "1st Edition",
+		TotalCopies:     totalCopies,
+		AvailableCopies: availableCopies,
+	}
+	db.Create(&book)
+}
+
+func seedAdminUser(db *gorm.DB) models.User {
+	admin := models.User{
+		Name:          "Admin User",
+		Email:         "admin@xenonstack.com",
+		Password:      "hashedpassword",
+		ContactNumber: "555-1234",
+		Role:          "LibraryAdmin",
+		LibraryID:     1,
+	}
+	db.Create(&admin)
+	return admin
+}
 
 // TestCreateIssueRequest_Success checks the scenario where a user successfully creates an issue request.
 // "CreateIssueRequest" internally reuses RaiseRequest logic.
@@ -25,7 +68,7 @@ func TestCreateIssueRequest_Success(t *testing.T) {
     // Seed a user.
     user := models.User{
         Name:          "IssueRequestUser",
-        Email:         "issuereq@example.com",
+        Email:         "issuereq@xenonstack.com",
         Password:      "hashed",
         ContactNumber: "123",
         Role:          "Reader",
@@ -48,10 +91,10 @@ func TestCreateIssueRequest_Success(t *testing.T) {
     db.Create(&book)
 
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // Middleware to inject Reader claims
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(user.ID),
             "role":       user.Role,
@@ -62,16 +105,16 @@ func TestCreateIssueRequest_Success(t *testing.T) {
     })
 
     // We call the "CreateIssueRequest" handler, which reuses RaiseRequest
-    router.POST("/issueRequests", handlers.CreateIssueRequest(db))
+    r.POST("/issueRequests", handlers.CreateIssueRequest(db))
 
-    requestBody, _ := json.Marshal(map[string]string{
+    payload, _ := json.Marshal(map[string]string{
         "bookID": "issue-req-isbn",
     })
-    req, _ := http.NewRequest("POST", "/issueRequests", bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("POST", "/issueRequests", bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -89,7 +132,7 @@ func TestGetIssueRequests_Success(t *testing.T) {
     // Seed a user with library_id=10
     user := models.User{
         Name:          "IssueRequestsUser",
-        Email:         "issuerequests@example.com",
+        Email:         "issuerequests@xenonstack.com",
         Password:      "hashed",
         ContactNumber: "999",
         Role:          "LibraryAdmin",
@@ -141,10 +184,10 @@ func TestGetIssueRequests_Success(t *testing.T) {
     db.Create(&re2)
 
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // Inject JWT claims referencing the user
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(user.ID),
             "role":       user.Role,
@@ -155,11 +198,11 @@ func TestGetIssueRequests_Success(t *testing.T) {
     })
 
     // The actual endpoint under test
-    router.GET("/issueRequests", handlers.GetIssueRequests(db))
+    r.GET("/issueRequests", handlers.GetIssueRequests(db))
 
     req, _ := http.NewRequest("GET", "/issueRequests", nil)
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     // We expect 200 OK since we have 2 request events for library_id=10
     assert.Equal(t, http.StatusOK, w.Code)
@@ -169,7 +212,10 @@ func TestGetIssueRequests_Success(t *testing.T) {
         Success  bool                           `json:"success"`
         Requests []handlers.IssueRequestDetail  `json:"requests"`
     }
-    json.Unmarshal(w.Body.Bytes(), &resp)
+
+    if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+        t.Fatalf("Failed to parse JSON response: %v", err) // ✅ Handle error properly
+    }
 
     assert.True(t, resp.Success)
     assert.Len(t, resp.Requests, 2, "Expected 2 request events in response")
@@ -180,9 +226,9 @@ func TestIssueBook_Success(t *testing.T) {
     db := setupTestDB(t)
     gin.SetMode(gin.TestMode)
 
-    router := gin.New()
+    r := gin.New()
     // JWT claims as an admin or owner
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         c.Set("user", jwt.MapClaims{
             "id":         float64(999),
             "role":       "LibraryAdmin",
@@ -190,11 +236,11 @@ func TestIssueBook_Success(t *testing.T) {
         })
         c.Next()
     })
-    router.POST("/issueRegistry", handlers.IssueBook(db))
+    r.POST("/issueRegistry", handlers.IssueBook(db))
 
     // Provide all required fields, including expected_return_date
     futureDate := time.Now().Add(48 * time.Hour)
-    requestBody, _ := json.Marshal(map[string]interface{}{
+    payload, _ := json.Marshal(map[string]any {
         "isbn":               "issuebookisbn",
         "reader_id":          1,
         "issue_approver_id":  999,
@@ -203,11 +249,11 @@ func TestIssueBook_Success(t *testing.T) {
         "library_id":         1,
     })
 
-    req, _ := http.NewRequest("POST", "/issueRegistry", bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("POST", "/issueRegistry", bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusOK, w.Code)
 
@@ -223,10 +269,10 @@ func TestIssueBook_Success(t *testing.T) {
 func TestIssueBook_MissingFields(t *testing.T) {
     db := setupTestDB(t)
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // JWT claims
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         c.Set("user", jwt.MapClaims{
             "id":         float64(100),
             "role":       "LibraryAdmin",
@@ -234,10 +280,10 @@ func TestIssueBook_MissingFields(t *testing.T) {
         })
         c.Next()
     })
-    router.POST("/issueRegistry", handlers.IssueBook(db))
+    r.POST("/issueRegistry", handlers.IssueBook(db))
 
     // Missing "expected_return_date"
-    requestBody, _ := json.Marshal(map[string]interface{}{
+    payload, _ := json.Marshal(map[string]any {
         "isbn":             "whatever",
         "reader_id":        2,
         "issue_approver_id": 100,
@@ -245,11 +291,11 @@ func TestIssueBook_MissingFields(t *testing.T) {
         "library_id":       1,
     })
 
-    req, _ := http.NewRequest("POST", "/issueRegistry", bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("POST", "/issueRegistry", bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusBadRequest, w.Code)
 }
@@ -282,10 +328,10 @@ func TestUpdateIssueRequestStatus_ApproveWithZeroCopies(t *testing.T) {
     db.Create(&reqEvent)
 
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // JWT claims
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         c.Set("user", jwt.MapClaims{
             "id":         float64(999),
             "role":       "LibraryAdmin",
@@ -293,18 +339,18 @@ func TestUpdateIssueRequestStatus_ApproveWithZeroCopies(t *testing.T) {
         })
         c.Next()
     })
-    router.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
+    r.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
 
     // Approve request
-    requestBody, _ := json.Marshal(map[string]interface{}{
+    payload, _ := json.Marshal(map[string]any {
         "request_type": "Approve",
     })
     url := "/issueRequests/" + strconv.Itoa(int(reqEvent.ReqID))
-    req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusBadRequest, w.Code)
 }
@@ -313,10 +359,10 @@ func TestUpdateIssueRequestStatus_ApproveWithZeroCopies(t *testing.T) {
 func TestUpdateIssueRequestStatus_NotFound(t *testing.T) {
     db := setupTestDB(t)
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // JWT claims
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(55),
             "role":       "LibraryAdmin",
@@ -325,17 +371,17 @@ func TestUpdateIssueRequestStatus_NotFound(t *testing.T) {
         c.Set("user", claims)
         c.Next()
     })
-    router.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
+    r.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
 
     // We haven't created any request events; ID "999" won't exist
-    requestBody, _ := json.Marshal(map[string]interface{}{
+    payload, _ := json.Marshal(map[string]any {
         "request_type": "Approve",
     })
-    req, _ := http.NewRequest("PUT", "/issueRequests/999", bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("PUT", "/issueRequests/999", bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
     assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
@@ -353,10 +399,10 @@ func TestUpdateIssueRequestStatus_UnknownType(t *testing.T) {
     db.Create(&reqEvent)
 
     gin.SetMode(gin.TestMode)
-    router := gin.New()
+    r := gin.New()
 
     // JWT claims
-    router.Use(func(c *gin.Context) {
+    r.Use(func(c *gin.Context) {
         c.Set("user", jwt.MapClaims{
             "id":         float64(111),
             "role":       "LibraryAdmin",
@@ -364,19 +410,149 @@ func TestUpdateIssueRequestStatus_UnknownType(t *testing.T) {
         })
         c.Next()
     })
-    router.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
+    r.PUT("/issueRequests/:id", handlers.UpdateIssueRequestStatus(db))
 
     // Provide an unknown request type
-    requestBody, _ := json.Marshal(map[string]string{
+    payload, _ := json.Marshal(map[string]string{
         "request_type": "WeirdStatus",
     })
     url := "/issueRequests/" + strconv.Itoa(int(reqEvent.ReqID))
-    req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
+    req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(payload))
     req.Header.Set("Content-Type", "application/json")
 
     w := httptest.NewRecorder()
-    router.ServeHTTP(w, req)
+    r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestRaiseRequest_MaxRequestsReached(t *testing.T) {
+	db := setupTestDB(t)
+
+	user := models.User{
+		Name:     "Reader One",
+		Email:    "reader@xenonstack.com",
+		Password: "hashedpassword",
+		Role:     "Reader",
+		LibraryID: 1,
+	}
+	db.Create(&user)
+
+	book := models.BookInventory{
+		ISBN:            "12345",
+		LibraryID:       1,
+		Title:           "Golang Book",
+		Author:          "John Doe",
+		TotalCopies:     10,
+		AvailableCopies: 5,
+	}
+	db.Create(&book)
+
+	for i := 0; i < 4; i++ {
+		request := models.RequestEvent{
+			BookID:      "12345",
+			ReaderID:    user.ID,
+			RequestType: "Issue",
+			RequestDate: time.Now(),
+		}
+		db.Create(&request)
+	}
+
+	claims := jwt.MapClaims{
+		"id":         float64(user.ID),
+		"role":       "Reader",
+		"library_id": float64(user.LibraryID),
+	}
+
+	r := setupRequestEventsRouter(db, claims)
+
+	payload, _ := json.Marshal(map[string]any {
+		"bookID": "12345",
+	})
+
+	req, _ := http.NewRequest("POST", "/requestEvents", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestRaiseRequest_DBFailure(t *testing.T) {
+	db := setupTestDB(t)
+
+	user := models.User{
+		Name:     "Reader Three",
+		Email:    "reader3@xenonstack.com",
+		Password: "hashedpassword",
+		Role:     "Reader",
+		LibraryID: 3,
+	}
+	db.Create(&user)
+
+	book := models.BookInventory{
+		ISBN:            "67890",
+		LibraryID:       3,
+		Title:           "DB Failure Book",
+		Author:          "Alice Doe",
+		TotalCopies:     10,
+		AvailableCopies: 5,
+	}
+
+	db.Create(&book)
+
+	claims := jwt.MapClaims{
+		"id":         float64(user.ID),
+		"role":       "Reader",
+		"library_id": float64(user.LibraryID),
+	}
+
+	r := setupRequestEventsRouter(db, claims)
+
+	sqlDB, _ := db.DB()
+	sqlDB.Close()
+
+	payload, _ := json.Marshal(map[string]any {
+		"bookID": "67890",
+	})
+
+	req, _ := http.NewRequest("POST", "/requestEvents", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func TestRaiseRequest_InvalidRequestBody(t *testing.T) {
+	db := setupTestDB(t)
+
+	user := models.User{
+		Name:     "Reader Four",
+		Email:    "reader4@xenonstack.com",
+		Password: "hashedpassword",
+		Role:     "Reader",
+		LibraryID: 4,
+	}
+
+	db.Create(&user)
+
+	claims := jwt.MapClaims{
+		"id":         float64(user.ID),
+		"role":       "Reader",
+		"library_id": float64(user.LibraryID),
+	}
+	r := setupRequestEventsRouter(db, claims)
+
+	payload, _ := json.Marshal(map[string]any{})
+	req, _ := http.NewRequest("POST", "/requestEvents", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 

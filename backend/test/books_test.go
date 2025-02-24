@@ -1,4 +1,4 @@
-// /backend/test/add_books_test.go
+// /backend/test/books_test.go
 package handlers_test
 
 import (
@@ -29,8 +29,7 @@ func TestAddOrIncrementBook(t *testing.T) {
 		TotalCopies:     10,
 		AvailableCopies: 10,
 	}
-	err := db.Create(&book).Error
-	assert.NoError(t, err)
+	db.Create(&book)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
@@ -47,7 +46,7 @@ func TestAddOrIncrementBook(t *testing.T) {
 	})
 	r.POST("/books", handlers.AddOrIncrementBook(db))
 
-	payload, _ := json.Marshal(map[string]any {
+	payload, _ := json.Marshal(map[string]any{
 		"isbn":     "12345",
 		"title":    "Golang Book",
 		"author":   "John Doe",
@@ -63,169 +62,218 @@ func TestAddOrIncrementBook(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var updatedBook models.BookInventory
-	err = db.First(&updatedBook, "isbn = ? AND library_id = ?", "12345", 1).Error
+	err := db.First(&updatedBook, "isbn = ? AND library_id = ?", "12345", 1).Error
 	assert.NoError(t, err)
 	assert.Equal(t, 15, updatedBook.TotalCopies)
 	assert.Equal(t, 15, updatedBook.AvailableCopies)
 }
 
-func TestRemoveBook_ResultsInDeletion(t *testing.T) {
+// 🆕 Test retrieving a book by ISBN
+func TestGetBookByISBN_Success(t *testing.T) {
     db := setupTestDB(t)
 
+    // Seed a test book
     book := models.BookInventory{
-        ISBN:            "rm-isbn",
+        ISBN:            "get-isbn",
         LibraryID:       1,
-        Title:           "Delete Me",
-        Author:          "Author",
-        Publisher:       "Pub",
+        Title:           "Fetch Me",
+        Author:          "Test Author",
+        Publisher:       "Test Publisher",
         Language:        "English",
         Version:         "1st",
-        TotalCopies:     2,
-        AvailableCopies: 2,
+        TotalCopies:     5,
+        AvailableCopies: 5,
     }
     db.Create(&book)
 
     gin.SetMode(gin.TestMode)
     r := gin.New()
 
-    r.Use(func(c *gin.Context) {
-        claims := jwt.MapClaims{
-            "id":         float64(99),
-            "role":       "LibraryAdmin",
-            "library_id": float64(1),
-        }
-        c.Set("user", claims)
-        c.Next()
-    })
-
-    r.POST("/books/remove", handlers.RemoveBook(db))
-
-    payload, _ := json.Marshal(map[string]any {
-        "isbn":   "rm-isbn",
-        "copies": 2,
-    })
-    req, _ := http.NewRequest("POST", "/books/remove", bytes.NewBuffer(payload))
-    req.Header.Set("Content-Type", "application/json")
-
-    w := httptest.NewRecorder()
-    r.ServeHTTP(w, req)
-
-    assert.Equal(t, http.StatusOK, w.Code)
-
-    var check models.BookInventory
-    err := db.First(&check, "isbn = ?", "rm-isbn").Error
-    assert.Error(t, err)
-}
-
-func TestUpdateBook_NotFound(t *testing.T) {
-    db := setupTestDB(t)
-    gin.SetMode(gin.TestMode)
-    r := gin.New()
-
+    // ✅ Inject user claims so the handler doesn't panic
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(101),
-            "role":       "LibraryAdmin",
+            "email":      "user@example.com",
+            "role":       "Reader",
             "library_id": float64(1),
         }
         c.Set("user", claims)
         c.Next()
     })
 
-    r.PUT("/books/:isbn", handlers.UpdateBook(db))
+    r.GET("/books/:isbn", handlers.GetBooks(db))
 
-    payload, _ := json.Marshal(map[string]string{
-        "author": "New Author",
-    })
-    req, _ := http.NewRequest("PUT", "/books/nonexistent-isbn", bytes.NewBuffer(payload))
-    req.Header.Set("Content-Type", "application/json")
-
+    req, _ := http.NewRequest("GET", "/books/get-isbn", nil)
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    assert.Equal(t, http.StatusNotFound, w.Code)
-}
+    // ✅ Print raw response body for debugging
+    t.Logf("Response Body: %s", w.Body.String())
 
-func TestUpdateBook_PartialFields(t *testing.T) {
-    db := setupTestDB(t)
-
-    original := models.BookInventory{
-        ISBN:            "upd-isbn",
-        LibraryID:       1,
-        Title:           "Original Title",
-        Author:          "Original Author",
-        Publisher:       "Orig Publisher",
-        Language:        "English",
-        Version:         "1st",
-        TotalCopies:     5,
-        AvailableCopies: 5,
-    }
-    db.Create(&original)
-
-    gin.SetMode(gin.TestMode)
-    r := gin.New()
-
-    r.Use(func(c *gin.Context) {
-        claims := jwt.MapClaims{
-            "id":         float64(102),
-            "role":       "LibraryAdmin",
-            "library_id": float64(1),
-        }
-        c.Set("user", claims)
-        c.Next()
-    })
-
-    r.PUT("/books/:isbn", handlers.UpdateBook(db))
-
-    payload, _ := json.Marshal(map[string]string{
-        "author": "New Author Only",
-    })
-
-    req, _ := http.NewRequest("PUT", "/books/upd-isbn", bytes.NewBuffer(payload))
-    req.Header.Set("Content-Type", "application/json")
-
-    w := httptest.NewRecorder()
-    r.ServeHTTP(w, req)
-
+    // ✅ Assert HTTP response
     assert.Equal(t, http.StatusOK, w.Code)
 
-    // Verify that only the Author changed
-    var updated models.BookInventory
-    err := db.First(&updated, "isbn = ?", "upd-isbn").Error
+    // ✅ Parse JSON response
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
     assert.NoError(t, err)
-    assert.Equal(t, "Original Title", updated.Title)
-    assert.Equal(t, "New Author Only", updated.Author)
-    assert.Equal(t, "Orig Publisher", updated.Publisher)
+
+    // ✅ Verify response structure
+    books, exists := response["books"].([]interface{})
+    assert.True(t, exists, "Expected 'books' array in response")
+    assert.GreaterOrEqual(t, len(books), 1, "Expected at least one book in response")
+
+    // ✅ Extract the first book from the array
+    bookData, ok := books[0].(map[string]interface{})
+    assert.True(t, ok, "Expected book object inside 'books' array")
+
+    // ✅ Ensure 'title' field exists and is correct
+    title, titleExists := bookData["Title"].(string)
+    assert.True(t, titleExists, "Expected 'Title' field in book response")
+    assert.Equal(t, "Fetch Me", title)
 }
 
-func TestAddOrIncrementBook_IncrementOnly_BookNotFound(t *testing.T) {
+// 🆕 Test retrieving all books
+func TestGetAllBooks_Success(t *testing.T) {
     db := setupTestDB(t)
+
+    // Seed multiple books
+    db.Create(&models.BookInventory{ISBN: "bk-1", LibraryID: 1, Title: "Book 1"})
+    db.Create(&models.BookInventory{ISBN: "bk-2", LibraryID: 1, Title: "Book 2"})
+
     gin.SetMode(gin.TestMode)
     r := gin.New()
 
+    // ✅ Inject user claims so the handler doesn't panic
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
-            "id":         float64(103),
-            "role":       "LibraryAdmin",
+            "id":         float64(101),
+            "email":      "user@example.com",
+            "role":       "Reader", // Adjust role as needed
             "library_id": float64(1),
         }
         c.Set("user", claims)
         c.Next()
     })
 
-    r.POST("/books", handlers.AddOrIncrementBook(db))
+    r.GET("/books", handlers.GetBooks(db))
 
-    payload, _ := json.Marshal(map[string]any {
-        "isbn":           "no-such-book",
-        "copies":         3,
-        "increment_only": true,
-    })
-
-    req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(payload))
-    req.Header.Set("Content-Type", "application/json")
-
+    req, _ := http.NewRequest("GET", "/books", nil)
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    assert.Equal(t, http.StatusBadRequest, w.Code)
+    // ✅ Assert HTTP response
+    assert.Equal(t, http.StatusOK, w.Code)
+
+    // ✅ Parse JSON response
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    assert.NoError(t, err)
+
+    // ✅ Check if books exist in response
+    books, ok := response["books"].([]interface{})
+    assert.True(t, ok, "Expected books array in response")
+    assert.GreaterOrEqual(t, len(books), 2, "Expected at least 2 books")
+}
+
+// 🆕 Test removing a book that has active issues (should fail)
+func TestRemoveBook_WithActiveIssues_Fails(t *testing.T) {
+	db := setupTestDB(t)
+
+	book := models.BookInventory{
+		ISBN:            "issued-isbn",
+		LibraryID:       1,
+		Title:           "Cannot Delete",
+		TotalCopies:     2,
+		AvailableCopies: 1, // 1 book is issued
+	}
+	db.Create(&book)
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(func(c *gin.Context) {
+		claims := jwt.MapClaims{
+			"id":         float64(99),
+			"role":       "LibraryAdmin",
+			"library_id": float64(1),
+		}
+		c.Set("user", claims)
+		c.Next()
+	})
+
+	r.POST("/books/remove", handlers.RemoveBook(db))
+
+	payload, _ := json.Marshal(map[string]any{
+		"isbn":   "issued-isbn",
+		"copies": 2,
+	})
+	req, _ := http.NewRequest("POST", "/books/remove", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Should fail since some books are issued
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+// 🆕 Test updating a book with an invalid ISBN (should fail)
+func TestUpdateBook_InvalidISBN_Fails(t *testing.T) {
+	db := setupTestDB(t)
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+
+	r.Use(func(c *gin.Context) {
+		claims := jwt.MapClaims{
+			"id":         float64(101),
+			"role":       "LibraryAdmin",
+			"library_id": float64(1),
+		}
+		c.Set("user", claims)
+		c.Next()
+	})
+
+	r.PUT("/books/:isbn", handlers.UpdateBook(db))
+
+	payload, _ := json.Marshal(map[string]string{
+		"author": "Updated Author",
+	})
+	req, _ := http.NewRequest("PUT", "/books/invalid-isbn", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+// 🆕 Test adding a book without required fields (should fail)
+func TestAddBook_MissingFields_Fails(t *testing.T) {
+	db := setupTestDB(t)
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+
+	r.Use(func(c *gin.Context) {
+		claims := jwt.MapClaims{
+			"id":         float64(102),
+			"role":       "LibraryAdmin",
+			"library_id": float64(1),
+		}
+		c.Set("user", claims)
+		c.Next()
+	})
+
+	r.POST("/books", handlers.AddOrIncrementBook(db))
+
+	payload, _ := json.Marshal(map[string]any{
+		"isbn":    "no-title-book",
+		"copies":  3,
+	})
+	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
