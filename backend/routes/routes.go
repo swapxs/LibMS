@@ -28,7 +28,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	api := r.Group("/api")
 	{
 		// Public endpoints.
-		api.POST("/library", handlers.CreateLibrary(db))
 		api.GET("/libraries", handlers.GetLibraries(db))
 		api.POST("/owner/registration", handlers.RegisterLibraryOwner(db))
 		api.POST("/auth/login", handlers.Login(db))
@@ -38,6 +37,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		protected := api.Group("/")
 		protected.Use(middleware.JWTAuthMiddleware())
 		{
+			protected.POST("/library", handlers.CreateLibrary(db))
 			protected.GET("/users", handlers.GetUsers(db))
 			protected.GET("/auth/userIssueInfo", handlers.GetUserIssueInfo(db))
 			// Book endpoints.
