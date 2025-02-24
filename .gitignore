@@ -1,2 +1,7 @@
 node_modules/
 frontend/node_modules/
+
+backend/go.mod
+backend/go.sum
+*.exe
+backend/backend
