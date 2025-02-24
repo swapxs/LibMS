@@ -32,12 +32,23 @@ func GetUsers(db *gorm.DB) gin.HandlerFunc {
 func GetUserIssueInfo(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
-		userID := uint(claims["id"].(float64))
+        userID, err := getUintFromClaim(claims, "id")
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 		var issues []models.IssueRegistry
+
 		if err := db.Where("reader_id = ?", userID).Find(&issues).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"success": true, "data": issues})
+
+		c.JSON(http.StatusOK, gin.H{
+            "success": true,
+            "data": issues,
+        })
 	}
 }
