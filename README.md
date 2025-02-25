@@ -37,72 +37,87 @@ This system is designed to streamline library operations by reducing manual work
 
 ### **Backend (`/backend`)**
 ```
-backend
-├── controllers
-│   ├── auth.go
-│   ├── book.go
-│   ├── issue.go
-│   ├── library.go
-│   ├── owner.go
-│   ├── request_events.go
-│   └── user.go
-├── db
-│   └── db.go
+backend/
+├── gen_report.sh
 ├── go.mod
 ├── go.sum
-├── main.go
-├── middleware
-│   └── jwt.go
-├── models
-│   ├── book_inventory.go
-│   ├── issue_registry.go
-│   ├── library.go
-│   ├── request_events.go
-│   └── user.go
-├── routes
-│   └── routes.go
-└── seed.go
+├── README.md
+├── src
+│   ├── db
+│   │   └── db.go
+│   ├── handlers
+│   │   ├── auth_handler.go
+│   │   ├── book_handler.go
+│   │   ├── claims_handler.go
+│   │   ├── issue_handler.go
+│   │   ├── library_handler.go
+│   │   ├── owner_handler.go
+│   │   ├── request_events_handler.go
+│   │   └── user_handler.go
+│   ├── main.go
+│   ├── middleware
+│   │   └── jwt.go
+│   ├── models
+│   │   ├── book_inventory_model.go
+│   │   ├── issue_registry_model.go
+│   │   ├── library_model.go
+│   │   ├── request_events_model.go
+│   │   └── user_model.go
+│   └── routes
+│       └── routes.go
+└── test
+    ├── books_test.go
+    ├── db_setup_test.go
+    ├── issue_request_test.go
+    ├── jwt_test.go
+    ├── library_test.go
+    ├── login_user_test.go
+    ├── negative_test.go
+    ├── owner_operations_test.go
+    ├── raise_request_test.go
+    ├── register_user_test.go
+    └── user_test.go
 ```
 
 ### **Frontend (`/frontend`)**
 ```
-frontend
-├── package-lock.json
+frontend/
 ├── package.json
 ├── public
-│   └── index.html
+│   └── index.html
+├── README.md
 └── src
     ├── App.jsx
     ├── assets
-    │   ├── AdminBanner.gif
-    │   ├── MainBanner.gif
-    │   ├── OwnerBanner.gif
-    │   └── ReaderBanner.gif
+    │   ├── AdminBanner.gif
+    │   ├── MainBanner.gif
+    │   ├── OwnerBanner.gif
+    │   └── ReaderBanner.gif
     ├── components
-    │   ├── AccountDetails.jsx
-    │   ├── Admin
-    │   │   ├── AddBookForm.jsx
-    │   │   ├── IssueRequestList.jsx
-    │   │   ├── RemoveBookForm.jsx
-    │   │   └── UpdateBookForm.jsx
-    │   ├── Auth
-    │   │   ├── Login.jsx
-    │   │   ├── OwnerRegister.jsx
-    │   │   └── Register.jsx
-    │   ├── Books.jsx
-    │   ├── Dashboard.jsx
-    │   ├── NavBar.jsx
-    │   ├── Owner
-    │   │   ├── AssignAdmin.jsx
-    │   │   └── BookStatus.jsx
-    │   └── User
-    │       ├── BookSearch.jsx
-    │       └── IssueRequestForm.jsx
+    │   ├── AccountDetails.jsx
+    │   ├── Admin
+    │   │   ├── AddBookForm.jsx
+    │   │   ├── IssueRequestList.jsx
+    │   │   ├── RemoveBookForm.jsx
+    │   │   └── UpdateBookForm.jsx
+    │   ├── Auth
+    │   │   ├── Login.jsx
+    │   │   ├── OwnerRegister.jsx
+    │   │   └── Register.jsx
+    │   ├── Books.jsx
+    │   ├── Dashboard.jsx
+    │   ├── NavBar.jsx
+    │   ├── Owner
+    │   │   ├── AssignAdmin.jsx
+    │   │   └── BookStatus.jsx
+    │   └── User
+    │       ├── BookSearch.jsx
+    │       └── IssueRequestForm.jsx
     ├── context
-    │   └── AuthContext.jsx
+    │   └── AuthContext.jsx
     ├── index.jsx
     ├── services
-    │   └── apiService.js
+    │   └── apiService.js
     └── styles
         └── main.css
 ```

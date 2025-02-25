@@ -22,11 +22,11 @@ The test report is saved as a csv in `./.blob/report`. You can generate the repo
 
 ## **Backend Project Structure**
 ```
-backend
-├── README.md
+backend/
 ├── gen_report.sh
 ├── go.mod
 ├── go.sum
+├── README.md
 ├── src
 │   ├── db
 │   │   └── db.go
@@ -54,30 +54,37 @@ backend
     ├── books_test.go
     ├── db_setup_test.go
     ├── issue_request_test.go
+    ├── jwt_test.go
     ├── library_test.go
     ├── login_user_test.go
     ├── negative_test.go
     ├── owner_operations_test.go
     ├── raise_request_test.go
-    └── register_user_test.go
+    ├── register_user_test.go
+    └── user_test.go
 ```
 
 ---
 
+## **Database Schema**
+![ERD](./img/er.png)
+
+The database schema follows a relational structure that efficiently manages books, users, and transactions. It ensures data integrity and minimizes redundancy by implementing foreign key constraints where necessary. The design allows easy scalability for adding more libraries, book categories, and multi-location tracking.
+
 ## **Authentication Workflow**
-### **1️⃣ User Registration (`POST /api/auth/register`)**
+### **User Registration (`POST /api/auth/register`)**
 1. User submits registration details (name, email, password, contact, role, library ID).
 2. Password is **hashed** using `bcrypt`.
 3. Data is saved in the `users` table with a default role of `Reader`.
 4. Response: `201 Created` with success message.
 
-### **2️⃣ User Login (`POST /api/auth/login`)**
+### **User Login (`POST /api/auth/login`)**
 1. User submits credentials (email & password).
 2. Credentials are **validated** against the database.
 3. If valid, a **JWT token** is generated and returned.
 4. Token contains user ID, role, and library ID for authorization.
 
-### **3️⃣ JWT Authentication Middleware (`jwt.go`)**
+### **JWT Authentication Middleware (`jwt.go`)**
 - Extracts JWT token from the `Authorization` header.
 - Validates the token.
 - Sets user claims in context for role-based access.
@@ -85,29 +92,29 @@ backend
 ---
 
 ## **Book Management Workflow**
-### **1️⃣ Add Book (`POST /api/books`)**
+### **Add Book (`POST /api/books`)**
 1. Admin submits book details (ISBN, title, author, copies, etc.).
 2. If book exists, copies are incremented.
 3. If book is new, a **new record** is created in `book_inventory`.
 
-### **2️⃣ Remove Book (`POST /api/books/remove`)**
+### **Remove Book (`POST /api/books/remove`)**
 1. Admin selects a book via ISBN.
 2. Requested number of copies are deducted from the inventory.
 3. If all copies are removed, the **book record is deleted**.
 
-### **3️⃣ Update Book (`PUT /api/books/:isbn`)**
+### **Update Book (`PUT /api/books/:isbn`)**
 1. Admin submits updated details (title, author, language, etc.).
 2. Changes are applied to the `book_inventory` table.
 
 ---
 
 ## **Request Handling Workflow**
-### **1️⃣ Raise Book Request (`POST /api/requestEvents`)**
+### **Raise Book Request (`POST /api/requestEvents`)**
 1. Readers can request up to **4 active book requests**.
 2. System checks **book availability** before processing request.
 3. Request is stored in `request_events` with status `Issue`.
 
-### **2️⃣ Approve / Reject Request (`PUT /api/issueRequests/:id`)**
+### **Approve / Reject Request (`PUT /api/issueRequests/:id`)**
 1. Admin reviews the request.
 2. If approved:
    - Available book copies are decremented.
@@ -117,12 +124,12 @@ backend
 ---
 
 ## **Book Issue & Return Workflow**
-### **1️⃣ Issue Book (`POST /api/issueRegistry`)**
+### **Issue Book (`POST /api/issueRegistry`)**
 1. Approved requests result in book issuance.
 2. Entry is created in `issue_registry` with **expected return date**.
 3. Book’s **available copies** are reduced in `book_inventory`.
 
-### **2️⃣ Return Book (`POST /api/issueRegistry/return`)**
+### **Return Book (`POST /api/issueRegistry/return`)**
 1. User returns the book.
 2. Admin marks **return date** in `issue_registry`.
 3. Available copies are incremented back in `book_inventory`.
@@ -130,15 +137,15 @@ backend
 ---
 
 ## **Admin & Owner Management Workflow**
-### **1️⃣ Assign Admin (`POST /api/owner/assign-admin`)**
+### **Assign Admin (`POST /api/owner/assign-admin`)**
 1. Owner selects a user via email.
 2. User’s role is updated to `LibraryAdmin`.
 
-### **2️⃣ Revoke Admin (`POST /api/owner/revoke-admin`)**
+### **Revoke Admin (`POST /api/owner/revoke-admin`)**
 1. Admin privileges are revoked.
 2. User is demoted to `Reader`.
 
-### **3️⃣ Audit Logs (`GET /api/owner/audit-logs`)**
+### **Audit Logs (`GET /api/owner/audit-logs`)**
 1. Tracks all admin actions (book additions, role changes, request approvals).
 
 ---
