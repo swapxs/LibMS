@@ -9,13 +9,13 @@ TEXT_REPORT="$BLOB_DIRECTORY/report_summary"
 FINAL_REPORT="$BLOB_DIRECTORY/final_report"
 
 printf "\n=============================================================\n"
-printf "Running Tests with Coverage\n"
+printf "Running Tests\n"
 printf "=============================================================\n\n"
 
-go test -v ./... -coverprofile="$REPORT_FILE"
+go test ./... -coverprofile="$REPORT_FILE"
 
 printf "\n=============================================================\n"
-printf "Generating Test Coverage Report\n"
+printf "Generating Test Report\n"
 printf "=============================================================\n\n"
 
 go tool cover -func="$REPORT_FILE" > "$TEXT_REPORT"
@@ -42,14 +42,9 @@ awk '
     }
 ' "$TEXT_REPORT"
 
-printf "\n=============================================================\n"
-printf "Consolidated Coverage Per Handler File\n"
-printf "=============================================================\n\n"
-
-cat "$FINAL_REPORT"
-
 rm "$REPORT_FILE" "$TEXT_REPORT" "$FINAL_REPORT"
 
 printf "\n=============================================================\n"
-printf "Final Report successfully generated: %s\n" "$CSV_FILE"
+printf "Consolidated Coverage Per Handler File and the\n"
+printf "final report is successfully generated: %s\n" "$CSV_FILE"
 printf "=============================================================\n\n"
