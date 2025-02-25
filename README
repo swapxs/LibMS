@@ -1,0 +1,206 @@
+=============================================================================
+========================= Library Management System =========================
+=============================================================================
+
+Overview
+========
+
+The Library Management System (LibMS) is a full-stack application designed to
+facilitate efficient library management. It supports three primary roles:
+
+- Owner: Manages the library, assigns/revokes admin roles, and oversees
+         administrative functions.
+
+- Library Admin: Manages book inventory, processes issue requests, and
+                 maintains user transactions.
+
+- Reader: Searches books, requests issues, and tracks borrowing history.
+
+LibMS optimizes library operations by automating book tracking, real-time
+request handling, and secure authentication. It includes advanced analytics,
+audit logs, and real-time notifications to enhance user experience.
+
+Technology Stack
+================
+
+Backend:
+--------
+- Language: Go (Gin framework for high-performance APIs)
+- Database: PostgreSQL (with GORM ORM for data modeling)
+- Authentication: JWT-based authentication with role-based access control
+- Middleware: Gin framework with JWT Middleware for secure API requests
+- Configuration: Environment variables (.env) for secure and flexible setup
+- Logging: Structured logging for better debugging and monitoring
+- Testing: Go’s built-in testing framework and sqlmock for database testing
+
+Frontend:
+---------
+- Framework: ReactJS (Functional Components & Hooks for modularity)
+- State Management: Context API (AuthContext for role-based session handling)
+- Styling: Vanilla CSS (Poppins font, library-themed color scheme)
+- Routing: React Router v6 for seamless navigation
+- Error Handling: User-friendly error messages and API failure fallbacks
+
+Project Structure
+=================
+
+LibMS
+├── backend
+│   ├── gen_report.sh
+│   ├── go.mod
+│   ├── go.sum
+│   ├── README.md
+│   ├── src
+│   │   ├── db
+│   │   │   └── db.go
+│   │   ├── handlers
+│   │   │   ├── auth_handler.go
+│   │   │   ├── book_handler.go
+│   │   │   ├── claims_handler.go
+│   │   │   ├── issue_handler.go
+│   │   │   ├── library_handler.go
+│   │   │   ├── owner_handler.go
+│   │   │   ├── request_events_handler.go
+│   │   │   └── user_handler.go
+│   │   ├── main.go
+│   │   ├── middleware
+│   │   │   └── jwt.go
+│   │   ├── models
+│   │   │   ├── book_inventory_model.go
+│   │   │   ├── issue_registry_model.go
+│   │   │   ├── library_model.go
+│   │   │   ├── request_events_model.go
+│   │   │   └── user_model.go
+│   │   └── routes
+│   │       └── routes.go
+│   └── test
+│       ├── books_test.go
+│       ├── db_setup_test.go
+│       ├── issue_request_test.go
+│       ├── jwt_test.go
+│       ├── library_test.go
+│       ├── login_test.go
+│       ├── negative_test.go
+│       ├── owner_operations_test.go
+│       ├── raise_request_test.go
+│       ├── register_test.go
+│       └── user_test.go
+├── database
+│   ├── Entity Relationship Diagram.png
+│   └── schema.sql
+├── frontend
+│   ├── package.json
+│   ├── public
+│   │   └── index.html
+│   ├── README.md
+│   └── src
+│       ├── App.jsx
+│       ├── assets
+│       │   ├── AdminBanner.gif
+│       │   ├── MainBanner.gif
+│       │   ├── OwnerBanner.gif
+│       │   └── ReaderBanner.gif
+│       ├── components
+│       │   ├── AccountDetails.jsx
+│       │   ├── Admin
+│       │   │   ├── AddBookForm.jsx
+│       │   │   ├── IssueRequestList.jsx
+│       │   │   ├── RemoveBookForm.jsx
+│       │   │   └── UpdateBookForm.jsx
+│       │   ├── Auth
+│       │   │   ├── Login.jsx
+│       │   │   ├── OwnerRegister.jsx
+│       │   │   └── Register.jsx
+│       │   ├── Books.jsx
+│       │   ├── Dashboard.jsx
+│       │   ├── NavBar.jsx
+│       │   ├── Owner
+│       │   │   ├── AssignAdmin.jsx
+│       │   │   └── BookStatus.jsx
+│       │   └── User
+│       │       ├── BookSearch.jsx
+│       │       └── IssueRequestForm.jsx
+│       ├── context
+│       │   └── AuthContext.jsx
+│       ├── index.jsx
+│       ├── services
+│       │   └── apiService.js
+│       └── styles
+│           └── main.css
+├── LICENSE
+└── README
+
+Database Schema
+===============
+
+The database follows a relational structure ensuring data integrity and minimal
+redundancy through foreign key constraints. The schema supports multi-library
+management, book categorization, and borrowing records.
+
+
+
+Authentication & Authorization
+==============================
+
+- JWT-based authentication for secure user access
+- Middleware (jwt.go):
+  - Extracts and verifies tokens
+  - Manages session expiration policies
+  - Implements role-based access control (RBAC)
+
+API Endpoints
+=============
+
+Authentication
+--------------
+
+- POST /api/auth/register → Register a user
+- POST /api/auth/login → Authenticate and return JWT
+
+Library Management
+------------------
+
+- POST /api/library → Create a new library
+- GET /api/libraries → Fetch registered libraries
+
+Book Management
+---------------
+
+- POST /api/books → Add a new book or increment copies
+- GET /api/books → Fetch books in the library
+- POST /api/books/remove → Remove book copies
+- PUT /api/books/:isbn → Update book details
+
+Request Handling
+----------------
+
+- POST /api/requestEvents → Raise an issue request
+- GET /api/issueRequests → Retrieve issue requests
+
+Issue Registry
+--------------
+
+- POST /api/issueRegistry → Issue a book to a reader
+- POST /api/issueRegistry/return → Register book return
+
+Admin & Owner Actions
+---------------------
+
+- POST /api/owner/assign-admin → Assign admin role
+- POST /api/owner/revoke-admin → Revoke admin role
+- GET /api/owner/audit-logs → Fetch action logs
+
+Security Considerations
+=======================
+
+- Secure Password Storage: User passwords are hashed using bcrypt.
+
+- JWT Expiration & Refresh: Tokens have an expiration policy to prevent session
+  hijacking.
+
+- Role-Based Access Control (RBAC): Enforces strict access policies for
+  different user roles.
+
+License
+This project is licensed under the GNU GPLv3 License.
+

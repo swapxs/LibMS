@@ -62,17 +62,20 @@ func TestJWTAuthMiddleware_MissingToken(t *testing.T) {
 
 func TestJWTAuthMiddleware_InvalidSignature(t *testing.T) {
 	router := setupRouterWithMiddleware()
+
 	claims := jwt.MapClaims{
 		"id": 1,
 		"email": "test@example.com",
 		"role": "Reader",
 		"exp": time.Now().Add(time.Hour).Unix(),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	fakeTokenString, _ := token.SignedString([]byte("wrongsecret"))
 
 	req, _ := http.NewRequest("GET", "/protected", nil)
 	req.Header.Set("Authorization", "Bearer "+fakeTokenString)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

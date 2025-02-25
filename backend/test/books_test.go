@@ -68,7 +68,7 @@ func TestAddOrIncrementBook(t *testing.T) {
 	assert.Equal(t, 15, updatedBook.AvailableCopies)
 }
 
-// 🆕 Test retrieving a book by ISBN
+// Test retrieving a book by ISBN
 func TestGetBookByISBN_Success(t *testing.T) {
     db := setupTestDB(t)
 
@@ -89,7 +89,7 @@ func TestGetBookByISBN_Success(t *testing.T) {
     gin.SetMode(gin.TestMode)
     r := gin.New()
 
-    // ✅ Inject user claims so the handler doesn't panic
+    //  Inject user claims so the handler doesn't panic
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(101),
@@ -107,33 +107,33 @@ func TestGetBookByISBN_Success(t *testing.T) {
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    // ✅ Print raw response body for debugging
+    //  Print raw response body for debugging
     t.Logf("Response Body: %s", w.Body.String())
 
-    // ✅ Assert HTTP response
+    //  Assert HTTP response
     assert.Equal(t, http.StatusOK, w.Code)
 
-    // ✅ Parse JSON response
+    //  Parse JSON response
     var response map[string]interface{}
     err := json.Unmarshal(w.Body.Bytes(), &response)
     assert.NoError(t, err)
 
-    // ✅ Verify response structure
+    //  Verify response structure
     books, exists := response["books"].([]interface{})
     assert.True(t, exists, "Expected 'books' array in response")
     assert.GreaterOrEqual(t, len(books), 1, "Expected at least one book in response")
 
-    // ✅ Extract the first book from the array
+    //  Extract the first book from the array
     bookData, ok := books[0].(map[string]interface{})
     assert.True(t, ok, "Expected book object inside 'books' array")
 
-    // ✅ Ensure 'title' field exists and is correct
+    //  Ensure 'title' field exists and is correct
     title, titleExists := bookData["Title"].(string)
     assert.True(t, titleExists, "Expected 'Title' field in book response")
     assert.Equal(t, "Fetch Me", title)
 }
 
-// 🆕 Test retrieving all books
+//  Test retrieving all books
 func TestGetAllBooks_Success(t *testing.T) {
     db := setupTestDB(t)
 
@@ -144,7 +144,7 @@ func TestGetAllBooks_Success(t *testing.T) {
     gin.SetMode(gin.TestMode)
     r := gin.New()
 
-    // ✅ Inject user claims so the handler doesn't panic
+    //  Inject user claims so the handler doesn't panic
     r.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "id":         float64(101),
@@ -162,21 +162,21 @@ func TestGetAllBooks_Success(t *testing.T) {
     w := httptest.NewRecorder()
     r.ServeHTTP(w, req)
 
-    // ✅ Assert HTTP response
+    // Assert HTTP response
     assert.Equal(t, http.StatusOK, w.Code)
 
-    // ✅ Parse JSON response
+    // Parse JSON response
     var response map[string]interface{}
     err := json.Unmarshal(w.Body.Bytes(), &response)
     assert.NoError(t, err)
 
-    // ✅ Check if books exist in response
+	// Check if books exist in response
     books, ok := response["books"].([]interface{})
     assert.True(t, ok, "Expected books array in response")
     assert.GreaterOrEqual(t, len(books), 2, "Expected at least 2 books")
 }
 
-// 🆕 Test removing a book that has active issues (should fail)
+// Test removing a book that has active issues (should fail)
 func TestRemoveBook_WithActiveIssues_Fails(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -217,7 +217,7 @@ func TestRemoveBook_WithActiveIssues_Fails(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
-// 🆕 Test updating a book with an invalid ISBN (should fail)
+// Test updating a book with an invalid ISBN (should fail)
 func TestUpdateBook_InvalidISBN_Fails(t *testing.T) {
 	db := setupTestDB(t)
 	gin.SetMode(gin.TestMode)
@@ -247,7 +247,7 @@ func TestUpdateBook_InvalidISBN_Fails(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-// 🆕 Test adding a book without required fields (should fail)
+// Test adding a book without required fields (should fail)
 func TestAddBook_MissingFields_Fails(t *testing.T) {
 	db := setupTestDB(t)
 	gin.SetMode(gin.TestMode)
