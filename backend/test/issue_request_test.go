@@ -419,14 +419,16 @@ func TestRaiseRequest_MaxRequestsReached(t *testing.T) {
 	}
 	db.Create(&book)
 
-	for i := 0; i < 4; i++ {
-		request := models.RequestEvent{
+	requests := make([]models.RequestEvent, 4)
+	for i := range requests {
+		requests[i] = models.RequestEvent{
 			BookID:      "12345",
 			ReaderID:    user.ID,
 			RequestType: "Issue",
 			RequestDate: time.Now(),
 		}
-		db.Create(&request)
+
+		db.Create(&requests[i])
 	}
 
 	claims := jwt.MapClaims{
