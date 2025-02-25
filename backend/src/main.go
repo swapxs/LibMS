@@ -1,4 +1,4 @@
-// /backend/main.go
+// /backend/src/main.go
 package main
 
 import (

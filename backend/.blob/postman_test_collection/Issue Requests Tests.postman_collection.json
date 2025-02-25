@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "b3389c13-3f5f-4ff5-8eea-3425cb84cfc9",
+		"name": "Issue Requests Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Issue_Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bookID\": \"ISBN-NEW-001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/issueRequests",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"issueRequests"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Get_All_Issued_Books",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/issueRequests",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"issueRequests"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Issue_Request_Unauthorized_Approval_Attempt",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"request_type\": \"Approve\",\n  \"expected_return_date\": \"2025-03-01T12:00:00Z\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/issueRequests/18",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"issueRequests",
+						"18"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

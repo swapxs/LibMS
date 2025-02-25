@@ -1,4 +1,4 @@
-// /backend/handlers/request_events.go
+// /backend/src/handlers/request_events.go
 package handlers
 
 import (

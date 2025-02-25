@@ -1,4 +1,4 @@
-// /backend/handlers/user.go
+// /backend/src/handlers/user.go
 package handlers
 
 import (

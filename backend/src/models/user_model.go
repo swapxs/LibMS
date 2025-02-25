@@ -1,4 +1,4 @@
-// /backend/models/user.go
+// /backend/src/models/user.go
 package models
 
 import "gorm.io/gorm"

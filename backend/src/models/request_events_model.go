@@ -1,4 +1,4 @@
-// /backend/models/request_events.go
+// /backend/src/models/request_events.go
 package models
 
 import "time"

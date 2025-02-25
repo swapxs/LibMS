@@ -1,4 +1,4 @@
-// /backend/test/user_handler_test.go
+// /backend/test/user_test.go
 package handlers_test
 
 import (

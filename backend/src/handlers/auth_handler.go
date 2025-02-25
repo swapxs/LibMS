@@ -1,4 +1,4 @@
-// /backend/handlers/auth.go
+// /backend/src/handlers/auth.go
 package handlers
 
 import (

@@ -1,0 +1,960 @@
+{
+	"info": {
+		"_postman_id": "ad1b982e-f242-4763-b1f3-1bef4b0e8095",
+		"name": "Book Endpoints Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Add_Books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Created At</th>",
+							"        <th>Updated At</th>",
+							"        <th>Deleted At</th>",
+							"        <th>ISBN</th>",
+							"        <th>Library ID</th>",
+							"        <th>Title</th>",
+							"        <th>Author</th>",
+							"        <th>Publisher</th>",
+							"        <th>Language</th>",
+							"        <th>Version</th>",
+							"        <th>Total Copies</th>",
+							"        <th>Available Copies</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.books}}",
+							"        <tr id=row_{{@key}}>",
+							"            <td>{{ID}}</td>",
+							"            <td>{{CreatedAt}}</td>",
+							"            <td>{{UpdatedAt}}</td>",
+							"            <td>{{DeletedAt}}</td>",
+							"            <td>{{ISBN}}</td>",
+							"            <td>{{LibraryID}}</td>",
+							"            <td>{{Title}}</td>",
+							"            <td>{{Author}}</td>",
+							"            <td>{{Publisher}}</td>",
+							"            <td>{{Language}}</td>",
+							"            <td>{{Version}}</td>",
+							"            <td>{{TotalCopies}}</td>",
+							"            <td>{{AvailableCopies}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"isbn\": \"ISBN-NEW-001\",\n  \"title\": \"New Book Title\",\n  \"author\": \"New Author\",\n  \"publisher\": \"New Publisher\",\n  \"language\": \"English\",\n  \"version\": \"1st\",\n  \"copies\": 5,\n  \"increment_only\": false\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Add_Books_Missing_Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Created At</th>",
+							"        <th>Updated At</th>",
+							"        <th>Deleted At</th>",
+							"        <th>ISBN</th>",
+							"        <th>Library ID</th>",
+							"        <th>Title</th>",
+							"        <th>Author</th>",
+							"        <th>Publisher</th>",
+							"        <th>Language</th>",
+							"        <th>Version</th>",
+							"        <th>Total Copies</th>",
+							"        <th>Available Copies</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.books}}",
+							"        <tr id=row_{{@key}}>",
+							"            <td>{{ID}}</td>",
+							"            <td>{{CreatedAt}}</td>",
+							"            <td>{{UpdatedAt}}</td>",
+							"            <td>{{DeletedAt}}</td>",
+							"            <td>{{ISBN}}</td>",
+							"            <td>{{LibraryID}}</td>",
+							"            <td>{{Title}}</td>",
+							"            <td>{{Author}}</td>",
+							"            <td>{{Publisher}}</td>",
+							"            <td>{{Language}}</td>",
+							"            <td>{{Version}}</td>",
+							"            <td>{{TotalCopies}}</td>",
+							"            <td>{{AvailableCopies}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"isbn\": \"\",\n  \"title\": \"Book With No ISBN\",\n  \"author\": \"New Author\",\n  \"publisher\": \"New Publisher\",\n  \"language\": \"English\",\n  \"version\": \"1st\",\n  \"copies\": 5,\n  \"increment_only\": false\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Increment_Books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Created At</th>",
+							"        <th>Updated At</th>",
+							"        <th>Deleted At</th>",
+							"        <th>ISBN</th>",
+							"        <th>Library ID</th>",
+							"        <th>Title</th>",
+							"        <th>Author</th>",
+							"        <th>Publisher</th>",
+							"        <th>Language</th>",
+							"        <th>Version</th>",
+							"        <th>Total Copies</th>",
+							"        <th>Available Copies</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.books}}",
+							"        <tr id=row_{{@key}}>",
+							"            <td>{{ID}}</td>",
+							"            <td>{{CreatedAt}}</td>",
+							"            <td>{{UpdatedAt}}</td>",
+							"            <td>{{DeletedAt}}</td>",
+							"            <td>{{ISBN}}</td>",
+							"            <td>{{LibraryID}}</td>",
+							"            <td>{{Title}}</td>",
+							"            <td>{{Author}}</td>",
+							"            <td>{{Publisher}}</td>",
+							"            <td>{{Language}}</td>",
+							"            <td>{{Version}}</td>",
+							"            <td>{{TotalCopies}}</td>",
+							"            <td>{{AvailableCopies}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"isbn\": \"ISBN-NEW-001\",\n  \"copies\": 5,\n  \"increment_only\": true\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Increment_Books_Does_Not_Exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>ID</th>",
+							"        <th>Created At</th>",
+							"        <th>Updated At</th>",
+							"        <th>Deleted At</th>",
+							"        <th>ISBN</th>",
+							"        <th>Library ID</th>",
+							"        <th>Title</th>",
+							"        <th>Author</th>",
+							"        <th>Publisher</th>",
+							"        <th>Language</th>",
+							"        <th>Version</th>",
+							"        <th>Total Copies</th>",
+							"        <th>Available Copies</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.books}}",
+							"        <tr id=row_{{@key}}>",
+							"            <td>{{ID}}</td>",
+							"            <td>{{CreatedAt}}</td>",
+							"            <td>{{UpdatedAt}}</td>",
+							"            <td>{{DeletedAt}}</td>",
+							"            <td>{{ISBN}}</td>",
+							"            <td>{{LibraryID}}</td>",
+							"            <td>{{Title}}</td>",
+							"            <td>{{Author}}</td>",
+							"            <td>{{Publisher}}</td>",
+							"            <td>{{Language}}</td>",
+							"            <td>{{Version}}</td>",
+							"            <td>{{TotalCopies}}</td>",
+							"            <td>{{AvailableCopies}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    return {response: pm.response.json()}",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"isbn\": \"ISBN-TEST-001\",\n  \"copies\": 5,\n  \"increment_only\": true\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Get_All_Book_List",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Get_All_Books_List_Unauthorized",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/books",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Remove_Book",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"isbn\": \"ISBN-NEW-001\",\n  \"copies\": 6\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books/remove",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books",
+						"remove"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Update_Book",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"author\": \"Updated Author\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books/ISBN-NEW-001",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books",
+						"ISBN-NEW-001"
+					],
+					"query": [
+						{
+							"key": "isbn",
+							"value": "ISBN-NEW-001",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Update_Book_ISBN_Not_Found",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "header",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpkQGNzZWMuYWRtaW4uY29tIiwiZXhwIjoxNzQwNzIwMTMyLCJpZCI6MywibGlicmFyeV9pZCI6MSwicm9sZSI6IkxpYnJhcnlBZG1pbiJ9.Tp02GlbPR0hh862rjAH0XD9QqTdKCIzwKPPUPPuqkXw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"author\": \"Updated Author\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/books/ISBN-NEW-333",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"books",
+						"ISBN-NEW-333"
+					],
+					"query": [
+						{
+							"key": "isbn",
+							"value": "ISBN-NEW-001",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

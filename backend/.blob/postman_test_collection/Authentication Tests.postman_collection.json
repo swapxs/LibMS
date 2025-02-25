@@ -1,0 +1,283 @@
+{
+	"info": {
+		"_postman_id": "beb4a9d3-18e1-40f5-8ea2-c6ad5868927f",
+		"name": "Authentication Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"PostMan User\",\n  \"email\": \"postman1@xenonstack.com\",\n  \"password\": \"123123123\",\n  \"contact_number\": \"0912345678\",\n  \"library_id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/register",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Register_Already_Exists",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"PostMan User\",\n  \"email\": \"postman1@xenonstack.com\",\n  \"password\": \"123123123\",\n  \"contact_number\": \"0912345678\",\n  \"library_id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/register",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Register_Missing_Fields",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"PostMan User\",\n  \"email\": \"postman1@xenonstack.com\",\n  \"password\": \"123123123\",\n  \"library_id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/register",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"owner@xenonstack.lib.com\",\n  \"password\": \"123123123\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Login_Credentials",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"owner@xenonstack.lib.com\",\n  \"password\": \"wrongpassword\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Login_Missing_Fields",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"user1@xenonstack.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Login_Bad_Data",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"doesnotexist@xenonstack.com\",\n  \"password\": \"anyPassword\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register_Library_Owner",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Owner1\",\n  \"email\": \"owner.lib@xenonstack.com\",\n  \"password\": \"passwd\",\n  \"contact_number\": \"2223334444\",\n  \"library_name\": \"Test Library\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/registration",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Registration_Duplicate_Owner",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Owner1\",\n  \"email\": \"owner.lib@xenonstack.com\",\n  \"password\": \"passwd\",\n  \"contact_number\": \"2223334444\",\n  \"library_name\": \"Test Library\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/registration",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

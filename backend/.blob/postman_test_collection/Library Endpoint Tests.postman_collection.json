@@ -1,0 +1,343 @@
+{
+	"info": {
+		"_postman_id": "34296f7d-8b12-4efb-931a-38dd9dc3c234",
+		"name": "Library Endpoint Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Create_New_Library",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "secret",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im93bmVyQHhlbm9uc3RhY2subGliLmNvbSIsImV4cCI6MTc0MDcxODYwOSwiaWQiOjExLCJsaWJyYXJ5X2lkIjozLCJyb2xlIjoiT3duZXIifQ.9UZiQmMCBXxw9mKA4wR73I3F1L9ekl4cPyUpY2n5Lm0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test Library\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/library",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"library"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Create_New_Library_Already_Exists",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "secret",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im93bmVyQHhlbm9uc3RhY2subGliLmNvbSIsImV4cCI6MTc0MDcxODYwOSwiaWQiOjExLCJsaWJyYXJ5X2lkIjozLCJyb2xlIjoiT3duZXIifQ.9UZiQmMCBXxw9mKA4wR73I3F1L9ekl4cPyUpY2n5Lm0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Cybersecurity\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/library",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"library"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Create_New_Library_Missing_Name",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "secret",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im93bmVyQHhlbm9uc3RhY2subGliLmNvbSIsImV4cCI6MTc0MDcxODYwOSwiaWQiOjExLCJsaWJyYXJ5X2lkIjozLCJyb2xlIjoiT3duZXIifQ.9UZiQmMCBXxw9mKA4wR73I3F1L9ekl4cPyUpY2n5Lm0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/library",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"library"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Create_Library_Unauthorized_Credential",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "secret",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"New Library\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/library",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"library"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get_List_Of_All_Libraries",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/libraries",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"libraries"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

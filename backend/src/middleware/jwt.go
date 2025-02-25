@@ -1,4 +1,4 @@
-// /backend/middleware/jwt.go
+// /backend/src/middleware/jwt.go
 package middleware
 
 import (

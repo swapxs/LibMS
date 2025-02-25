@@ -1,4 +1,4 @@
-// /backend/models/book_inventory.go
+// /backend/src/models/book_inventory.go
 package models
 
 import "gorm.io/gorm"

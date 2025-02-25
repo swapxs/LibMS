@@ -1,0 +1,282 @@
+{
+	"info": {
+		"_postman_id": "c2126f56-1107-4db1-829e-4d72ae39a1d7",
+		"name": "Owner Operations Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Assign_Admin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"jd@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/assign-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"assign-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Assign_Admin_But_Already_Admin_(IDEMPOTENT)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"jd@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/assign-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"assign-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Assign_Admin_User_Not_Found",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"doesnotexists@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/assign-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"assign-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Assign_Admin_Unauthorized",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJyQGdtYWlsLmNvbSIsImV4cCI6MTc0MDcxOTg0NywiaWQiOjcsImxpYnJhcnlfaWQiOjIsInJvbGUiOiJSZWFkZXIifQ.T25GiRWVPnyS1xQ_2HuVlaTRbqisNsXeiZkgjE9H7FM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"jd@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/assign-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"assign-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Successful_Revoke_Admin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"jd@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/revoke-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"revoke-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Revoke_Admin_Self",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"swapnil@csec.library.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/revoke-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"revoke-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Revoke_Admin_User_Not_Found",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN3YXBuaWxAY3NlYy5saWJyYXJ5LmNvbSIsImV4cCI6MTc0MDcxOTM3NSwiaWQiOjEsImxpYnJhcnlfaWQiOjEsInJvbGUiOiJPd25lciJ9.6CrIr4YDb44KvifO5MAZ4mMWSBOuMjgIBSQxZj1fQbQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"doesnotexists@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/revoke-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"revoke-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Revoke_Admin_Unauthorized",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJyQGdtYWlsLmNvbSIsImV4cCI6MTc0MDcxOTg0NywiaWQiOjcsImxpYnJhcnlfaWQiOjIsInJvbGUiOiJSZWFkZXIifQ.T25GiRWVPnyS1xQ_2HuVlaTRbqisNsXeiZkgjE9H7FM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"jd@csec.admin.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/owner/revoke-admin",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"owner",
+						"revoke-admin"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

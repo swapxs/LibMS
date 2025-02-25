@@ -1,0 +1,76 @@
+{
+	"info": {
+		"_postman_id": "382272a5-c922-4559-ad98-39b3d6f64434",
+		"name": "Request Event Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40834255"
+	},
+	"item": [
+		{
+			"name": "Successful_Request_Events",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bookID\": \"ISBN-NEW-001\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/requestEvents",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"requestEvents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid_Request_Events_Missing_Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImphY2tAZ21haWwuY29tIiwiZXhwIjoxNzQwNzE4NzMwLCJpZCI6NSwibGlicmFyeV9pZCI6MSwicm9sZSI6IlJlYWRlciJ9.qN7XY6eUIjwHCG0vPU2eJYU-VB4LnFbrl922KhDWtqU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bookID\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/requestEvents",
+					"host": [
+						"http://localhost:5000"
+					],
+					"path": [
+						"api",
+						"requestEvents"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
