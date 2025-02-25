@@ -1,6 +1,6 @@
 # **Library Management System**
 
-## **📌 Overview**
+## **Overview**
 The **Library Management System (LibMS)** is a **full-stack application** that enables libraries to manage book inventories, process issue requests, and oversee borrowing history. It supports three roles:
 
 - **Owner**: Manages the library, assigns admin roles, and oversees administrative functions, including policy settings, performance monitoring, and access control.
@@ -11,7 +11,7 @@ This system is designed to streamline library operations by reducing manual work
 
 ---
 
-## **🛠️ Technology Stack**
+## **Technology Stack**
 
 ### **Backend:**
 - **Language**: Go (Gin framework) for a lightweight and high-performance API.
@@ -33,7 +33,7 @@ This system is designed to streamline library operations by reducing manual work
 
 ---
 
-## **💁️ Project Structure**
+## **Project Structure**
 
 ### **Backend (`/backend`)**
 ```
@@ -124,14 +124,14 @@ frontend/
 
 ---
 
-## **📄 Database Schema**
+## **Database Schema**
 ![ERD](./img/er.png)
 
 The database schema follows a relational structure that efficiently manages books, users, and transactions. It ensures data integrity and minimizes redundancy by implementing foreign key constraints where necessary. The design allows easy scalability for adding more libraries, book categories, and multi-location tracking.
 
 ---
 
-## **🔒 Authentication & Authorization**
+## **Authentication & Authorization**
 - **JWT-based authentication** ensures secure access control.
 - **Middleware (`jwt.go`)**:
   - Extracts token from the request header for validation.
@@ -141,7 +141,7 @@ The database schema follows a relational structure that efficiently manages book
 
 ---
 
-## **📌 API Endpoints**
+## **API Endpoints**
 
 ### **Authentication (`auth.go`)**
 - `POST /api/auth/register` → Register a user with encrypted credentials.
