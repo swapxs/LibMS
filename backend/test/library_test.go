@@ -21,7 +21,6 @@ func TestCreateLibrary_Owner(t *testing.T) {
     gin.SetMode(gin.TestMode)
     router := gin.New()
 
-    // Mock middleware to inject an Owner JWT claim
     router.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "role": "Owner",
@@ -60,7 +59,6 @@ func TestCreateLibrary_NonOwner(t *testing.T) {
     gin.SetMode(gin.TestMode)
     router := gin.New()
 
-    // Mock middleware to inject a non-Owner JWT claim
     router.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{
             "role": "Reader",
@@ -94,7 +92,6 @@ func TestCreateLibrary_AlreadyExists(t *testing.T) {
     gin.SetMode(gin.TestMode)
     router := gin.New()
 
-    // Mock Owner claims
     router.Use(func(c *gin.Context) {
         claims := jwt.MapClaims{"role": "Owner"}
         c.Set("user", claims)

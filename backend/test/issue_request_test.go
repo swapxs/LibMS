@@ -22,7 +22,6 @@ func setupRequestEventsRouter(db *gorm.DB, claims jwt.MapClaims) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
-	// Mock middleware to inject JWT claims
 	r.Use(func(c *gin.Context) {
 		c.Set("user", claims)
 		c.Next()
@@ -32,36 +31,8 @@ func setupRequestEventsRouter(db *gorm.DB, claims jwt.MapClaims) *gin.Engine {
 	return r
 }
 
-func seedBook(db *gorm.DB, isbn string, totalCopies int, availableCopies int) {
-	book := models.BookInventory{
-		ISBN:            isbn,
-		LibraryID:       1,
-		Title:           "Golang Book",
-		Author:          "John Doe",
-		Publisher:       "Some Publisher",
-		Language:        "English",
-		Version:         "1st Edition",
-		TotalCopies:     totalCopies,
-		AvailableCopies: availableCopies,
-	}
-	db.Create(&book)
-}
-
-func seedAdminUser(db *gorm.DB) models.User {
-	admin := models.User{
-		Name:          "Admin User",
-		Email:         "admin@xenonstack.com",
-		Password:      "hashedpassword",
-		ContactNumber: "555-1234",
-		Role:          "LibraryAdmin",
-		LibraryID:     1,
-	}
-	db.Create(&admin)
-	return admin
-}
 
 // TestCreateIssueRequest_Success checks the scenario where a user successfully creates an issue request.
-// "CreateIssueRequest" internally reuses RaiseRequest logic.
 func TestCreateIssueRequest_Success(t *testing.T) {
     db := setupTestDB(t)
 
