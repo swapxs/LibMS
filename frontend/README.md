@@ -1,11 +1,11 @@
 # **Frontend Workflow - Library Management System (LibMS)**
 
-## **📌 Overview**
+## **Overview**
 The frontend of the **Library Management System (LibMS)** provides an intuitive user interface for **owners, library admins, and readers** to interact with the system. Built using **ReactJS** with **React Router v6**, it ensures smooth navigation, state management using **Context API**, and a clean UI using **vanilla CSS**.
 
 ---
 
-## **🛠️ Technology Stack**
+## **Technology Stack**
 - **Framework:** ReactJS (Functional Components & Hooks)
 - **State Management:** Context API (AuthContext)
 - **Routing:** React Router v6 for navigation
@@ -16,7 +16,7 @@ The frontend of the **Library Management System (LibMS)** provides an intuitive 
 
 ---
 
-## **📁 Frontend Project Structure**
+## **Frontend Project Structure**
 ```
 frontend
 ├── src
@@ -53,7 +53,7 @@ frontend
 
 ---
 
-## **🔐 Authentication Workflow**
+## **Authentication Workflow**
 ### **1️⃣ User Login (`Login.jsx`)**
 1. User enters **email** and **password**.
 2. Data is sent to `POST /api/auth/login`.
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 
 ---
 
-## **📚 Book Management Workflow**
+## **Book Management Workflow**
 ### **1️⃣ Add Book (`AddBookForm.jsx`)**
 1. Admin enters **ISBN, Title, Author, Publisher, Language, Copies**.
 2. Data is sent to `POST /api/books`.
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
 
 ---
 
-## **📑 Request Handling Workflow**
+## **Request Handling Workflow**
 ### **1️⃣ Raise Book Request (`IssueRequestForm.jsx`)**
 1. Reader searches for a book.
 2. Clicks **Request Issue** button.
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
 
 ---
 
-## **📌 Navigation & Role-Based Access**
+## **Navigation & Role-Based Access**
 ### **1️⃣ Role-Based Dashboard (`Dashboard.jsx`)**
 - **Owner:** Sees user management, book status.
 - **Library Admin:** Manages books and issue requests.
@@ -159,18 +159,18 @@ return (
 
 ---
 
-## **🔗 API Endpoints Summary**
-### **🔹 Authentication**
+## **API Endpoints Summary**
+### **Authentication**
 - `POST /api/auth/register` → Register new user
 - `POST /api/auth/login` → User login & JWT token generation
 
-### **🔹 Books**
+### **Books**
 - `POST /api/books` → Add/increment book copies
 - `GET /api/books` → Retrieve all books
 - `POST /api/books/remove` → Remove book copies
 - `PUT /api/books/:isbn` → Update book details
 
-### **🔹 Book Requests**
+### **Book Requests**
 - `POST /api/requestEvents` → Request book issue
 - `GET /api/issueRequests` → Get all book requests
 - `PUT /api/issueRequests/:id` → Approve/reject issue request
