@@ -98,6 +98,11 @@ func GetBooks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("user").(jwt.MapClaims)
 		libraryID := uint(claims["library_id"].(float64))
+
+		// SELECT * FROM books ORDER BY creation_date ASC LIMIT 50;
+
+
+
 		var books []models.BookInventory
 		if err := db.Where("library_id = ?", libraryID).Find(&books).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

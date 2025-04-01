@@ -4,7 +4,7 @@ github.com/swapxs/LibMS/backend/src/handlers/book_handler.go,56.175%
 github.com/swapxs/LibMS/backend/src/db/db.go,0%
 github.com/swapxs/LibMS/backend/src/handlers/owner_handler.go,69.5667%
 github.com/swapxs/LibMS/backend/src/middleware/jwt.go,59.3%
-github.com/swapxs/LibMS/backend/src/handlers/issue_handler.go,73.15%
+github.com/swapxs/LibMS/backend/src/handlers/issue_handler.go,71.2%
 github.com/swapxs/LibMS/backend/src/main.go,0%
 github.com/swapxs/LibMS/backend/src/handlers/library_handler.go,74.25%
 github.com/swapxs/LibMS/backend/src/handlers/auth_handler.go,85.25%
